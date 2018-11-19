@@ -1,0 +1,69 @@
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+        <!-- Create a simple CodeMirror instance -->
+        <link rel="stylesheet" href="lib/CodeMirror/codemirror.css">
+        <script src="lib/CodeMirror/codemirror.js"></script>
+        <script>
+            window.onload = function(){
+                var editor = CodeMirror.fromTextArea(document.getElementById("t"), {
+                    lineNumbers: true,
+                    mode:  "javascript"
+                });
+            }
+        </script>
+    </head>
+    <body>
+        <textarea id="t" style="width:100%;height:500px;">
+                string LoginUrl = "https://login.salesforce.com/services/oauth2/token";
+
+                LoginUrl += "?grant_type=password";
+          
+                LoginUrl += "&client_id=3MVG9YDQS5WtC11qjSWvUz6NOzBunszGJC.VvdqCxkUyGYsTAmwUB_R33nZvyba5IePe2.UShom.ptdH0mxpo";
+          
+                LoginUrl += "&client_secret=2503084973416815406";
+          
+                LoginUrl += "&username=fff8965@triosysw.com";
+          
+                LoginUrl += "&password=zmmq89655";
+          
+                //the line below enables TLS1.1 and TLS1.2
+          
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
+          
+                FormUrlEncodedContent content = new FormUrlEncodedContent(new[]
+          
+                {
+          
+                  new KeyValuePair<string, string>("grant_typ", "password"),
+          
+                  new KeyValuePair<string, string>("client_id", "3MVG9YDQS5WtC11qjSWvUz6NOzBunszGJC.VvdqCxkUyGYsTAmwUB_R33nZvyba5IePe2.UShom.ptdH0mxpo"),
+          
+                  new KeyValuePair<string, string>("client_secret", "2503084973416815406"),
+          
+                  new KeyValuePair<string, string>("username", "fff8965@triosysw.com"),
+          
+                  new KeyValuePair<string, string>("password", "xxxx")
+          
+                });
+          
+                HttpResponseMessage response;
+          
+                using (HttpClient client = new HttpClient())
+          
+                {
+          
+                  response = client.PostAsync(LoginUrl, content).Result;
+          
+                }
+          
+                var aaa = response.Content.ReadAsStringAsync().Result;
+          
+                Console.WriteLine(aaa);
+          
+                Console.WriteLine(response.StatusCode);
+          
+                Console.ReadLine();
+        </textarea>
+    </body>
+</html>

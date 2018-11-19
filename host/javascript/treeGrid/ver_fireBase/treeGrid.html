@@ -1,0 +1,69 @@
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>simplistTemplate</title>
+  <script src="../../../../js/vue.js"></script>
+  <script
+    src="https://code.jquery.com/jquery-3.3.1.js"
+    integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
+    crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="treeNode.css">
+    <script src="./treeGrid.js"></script>
+    
+    <script src="https://www.gstatic.com/firebasejs/5.2.0/firebase.js"></script>
+</head>
+<body>
+    <script src="../../../../js/globleBase.js"></script>
+  <div id="app" style="position: relative;">
+      <div>
+            <tree-grid  v-bind:tree_data="datas" v-bind:columns="columns" />
+      </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/5.2.0/firebase.js"></script>
+  <script>
+    // Initialize Firebase
+    var config = {
+      apiKey: "AIzaSyAyVsmWY2xFCq80kvy0uNEk7rU_7MyRQ_Y",
+      authDomain: "test-6879f.firebaseapp.com",
+      databaseURL: "https://test-6879f.firebaseio.com",
+      projectId: "test-6879f",
+      storageBucket: "test-6879f.appspot.com",
+      messagingSenderId: "1099134308230"
+    };
+    firebase.initializeApp(config);
+  </script>
+  <script>
+    // app date
+
+    var datas = {title:"root", name:"太郎", desc:"マネジャー", children:[
+                    {title:"c1", name:"一郎", desc:"開発者", children:[{title:"c11", children:[{title:"c111"}]},{title:"c12"}]},
+                    {title:"c2", name:"二郎", desc:"開発者", children:[{title:"c21"}]},
+                    {title:"c3", name:"三郎", desc:"開発者", children:[{title:"c31"},{title:"c32"}]},
+                ]};
+
+    var columns = [{title:"メンーバ", propertyName:"name", width:"100px"},
+                   {title:"コメント", propertyName:"desc", width:"200px"}];
+    // api source
+
+    function initVue(data){
+          
+        var v = new Vue({
+          el: '#app',
+          data: {datas:data.datas, columns:data.columns},
+          methods: {
+          }
+        });
+
+    }
+
+    var database = firebase.database();
+    database.ref("/treeData").once("value").then(function(data){
+      initVue(data.val());
+    });
+    
+
+  </script>
+</body>
+</html>

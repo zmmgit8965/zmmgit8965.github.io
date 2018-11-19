@@ -1,0 +1,36 @@
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href="../../lib/w3.css">
+        <script src="../../lib/jquery.js"></script>
+        <script src="../../lib/vue.js"></script>
+        <script src="../../js/baseAPI.js"></script>
+    </head>
+    <body>
+        <div id="app">
+            <table class="w3-table-all w3-hoverable">
+                <thead>
+                <tr class="w3-light-blue">
+                    <th>Name</th>
+                    <th>Label</th>
+                    <td>isCustomObject</td>
+                    <td></td>
+                </tr>
+                </thead>
+                <tr  v-for="obj in appData.objects">
+                <td>{{obj.name}}</td>
+                <td>{{obj.label}}</td>
+                <td>{{obj.custom}}</td>
+                <td style="padding:0;">
+                    <a v-if="obj.isCustomObject" class="w3-button w3-white w3-border w3-border-blue w3-round-large" 
+                        v-bind:href="appData.loginInfo.domain + obj.customObjectId + '?setupid=CustomObjects'" target="_blank">Ref</a>
+                    
+                    <a v-if="obj.isCustomObject" class="w3-button w3-white w3-border w3-border-blue w3-round-large" 
+                    v-bind:href="'../fields/fields.html?objectId=' + obj.customObjectId + '&objectName=' + obj.name " target="_blank">fields</a>
+                </td>
+                </tr>
+            </table>
+        </div>
+        <script src="main.js"></script>
+    </body>
+</html>

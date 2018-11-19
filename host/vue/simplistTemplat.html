@@ -1,0 +1,31 @@
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>simplistTemplate</title>
+  <script src="../../js/vue.js"></script>
+  
+</head>
+<body>
+    <script src="../../js/globleBase.js"></script>
+
+  <div id="app">
+    {{n}}
+    <br />
+    <button v-on:click="n++">++</button>
+    <button v-on:click="plus('ss')">++Method</button>
+  </div>
+
+<script>
+  new Vue({
+    el: '#app',
+    data: {n:0},
+    methods: {
+        plus : function(p){
+            this.n ++;
+        }
+    }
+  })
+</script>
+</body>
+</html>

@@ -1,0 +1,275 @@
+
+<!DOCTYPE html>
+<html>
+<title>W3.CSS Template</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="../../../js/vue.js"></script>
+<script
+  src="https://code.jquery.com/jquery-3.3.1.js"
+  integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
+  crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="style.css" />
+  
+  <link type="application/atom+xml" rel="alternate" href="https://quilljs.com/feed.xml" title="Quill - Your powerful rich text editor" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/monokai-sublime.min.css" />
+  <link rel="stylesheet" href="https://cdn.quilljs.com/1.3.6/quill.snow.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.js" type="5e24fc88f4964762b08d49a6-"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js" type="5e24fc88f4964762b08d49a6-"></script>
+  <script src="https://cdn.quilljs.com/1.3.6/quill.min.js" type="5e24fc88f4964762b08d49a6-"></script>
+  <script src="https://ajax.cloudflare.com/cdn-cgi/scripts/4f936b58/cloudflare-static/rocket-loader.min.js" data-cf-nonce="5e24fc88f4964762b08d49a6-" defer=""></script>
+  
+  
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://www.w3schools.com/lib/w3-theme-black.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+html,body,h1,h2,h3,h4,h5,h6 {font-family: "Roboto", sans-serif;}
+.w3-sidebar {
+  z-index: 3;
+  width: 250px;
+  top: 43px;
+  bottom: 0;
+  height: inherit;
+}
+</style>
+<body>
+
+<div id="app">
+
+    <!-- Navbar -->
+    <div class="w3-top">
+    <div class="w3-bar w3-theme w3-top w3-left-align w3-large">
+        <a class="w3-bar-item w3-button w3-right w3-hide-large w3-hover-white w3-large w3-theme-l1" href="javascript:void(0)" onclick="w3_open()"><i class="fa fa-bars"></i></a>
+        <a href="#" class="w3-bar-item w3-button w3-theme-l1">Logo</a>
+        <a href="#" class="w3-bar-item w3-button w3-hide-small w3-hover-white" v-on:click="createMemo">fiber_new</a>
+        <a href="#" class="w3-bar-item w3-button w3-hide-small w3-hover-white">About</a>
+        <a href="#" class="w3-bar-item w3-button w3-hide-small w3-hover-white">Values</a>
+        <a href="#" class="w3-bar-item w3-button w3-hide-small w3-hover-white">News</a>
+        <a href="#" class="w3-bar-item w3-button w3-hide-small w3-hover-white">Contact</a>
+        <a href="#" class="w3-bar-item w3-button w3-hide-small w3-hide-medium w3-hover-white">Clients</a>
+        <a href="#" class="w3-bar-item w3-button w3-hide-small w3-hide-medium w3-hover-white">Partners</a>
+        
+    </div>
+    </div>
+
+    <!-- Sidebar -->
+    <nav class="w3-sidebar w3-bar-block w3-collapse w3-large w3-theme-l5 w3-animate-left" id="mySidebar">
+    <a href="javascript:void(0)" onclick="w3_close()" class="w3-right w3-xlarge w3-padding-large w3-hover-black w3-hide-large" title="Close Menu">
+        <i class="fa fa-remove"></i>
+    </a>
+    <h4 class="w3-bar-item"><b>Menu</b></h4>
+    <group-select-cmp v-bind:group_names="data.groupNames" v-on:onselect="groupClick($event);"/>
+    </nav>
+
+    <!-- Overlay effect when opening sidebar on small screens -->
+    <div class="w3-overlay w3-hide-large" onclick="w3_close()" style="cursor:pointer" title="close side menu" id="myOverlay"></div>
+
+    <!-- Main content: shift it to the right by 250 pixels when the sidebar is visible -->
+    <div class="w3-main" style="margin-left:250px">
+
+        <div class="w3-rest">
+            <memo-list v-bind:list="data.demoList" />
+        </div>
+        <div syle="position:absolute;">
+            <div>
+                <memo-view-modal ref="memoViewModal" v-bind:memo="{title:'',detail:''}" />
+            </div>
+            <div>
+                <memo-edit-modal ref="memoEditModal" v-bind:memo="{title:'',detail:''}" />
+            </div>
+        </div>
+
+    <!-- Pagination -->
+    <div class="w3-center w3-padding-32">
+        <div class="w3-bar">
+        <a class="w3-button w3-black" href="#">1</a>
+        <a class="w3-button w3-hover-black" href="#">2</a>
+        <a class="w3-button w3-hover-black" href="#">3</a>
+        <a class="w3-button w3-hover-black" href="#">4</a>
+        <a class="w3-button w3-hover-black" href="#">5</a>
+        <a class="w3-button w3-hover-black" href="#">&raquo;</a>
+        </div>
+    </div>
+
+    <footer id="myFooter">
+        <div class="w3-container w3-theme-l2 w3-padding-32">
+        <h4>Footer</h4>
+        </div>
+
+        <div class="w3-container w3-theme-l1">
+        <p>Powered by <a href="https://www.w3schools.com/w3css/default.asp" target="_blank">w3.css</a></p>
+        </div>
+    </footer>
+
+    <!-- END MAIN -->
+    </div>
+</div>
+
+<script>
+// Get the Sidebar
+var mySidebar = document.getElementById("mySidebar");
+
+// Get the DIV with overlay effect
+var overlayBg = document.getElementById("myOverlay");
+
+// Toggle between showing and hiding the sidebar, and add overlay effect
+function w3_open() {
+    if (mySidebar.style.display === 'block') {
+        mySidebar.style.display = 'none';
+        overlayBg.style.display = "none";
+    } else {
+        mySidebar.style.display = 'block';
+        overlayBg.style.display = "block";
+    }
+}
+
+// Close the sidebar with the close button
+function w3_close() {
+    mySidebar.style.display = "none";
+    overlayBg.style.display = "none";
+}
+</script>
+
+<script src="memoItem.js"></script>
+<script src="memoViewModal.js"></script>
+<script src="memoEditModal.js"></script>
+<script src="memoList.js"></script>
+<script src="groupsCmp.js"></script>
+<script src="groupSelectCmp.js"></script>
+<script src="groupCheckCmp.js"></script>
+<script src="https://www.gstatic.com/firebasejs/5.2.0/firebase.js"></script>
+<script>
+// Initialize Firebase
+var config = {
+    apiKey: "AIzaSyAjv30ycfoiuYTRYFVQM-RwPj48iQG1oWM",
+    authDomain: "memosystem1.firebaseapp.com",
+    databaseURL: "https://memosystem1.firebaseio.com",
+    projectId: "memosystem1",
+    storageBucket: "",
+    messagingSenderId: "797681972148"
+};
+firebase.initializeApp(config);
+var database = firebase.database();
+var db = firebase.firestore();
+</script>
+<script>
+    //  var datas = [
+    //      {groupName:"javascript", subItem:[{title:"aaaa",detail:"xxxxxx",text:"a"},{title:"bbbb",detail:"xxxxxxxx",text:"a"}]},
+    //      {groupName:"dotnet", subItem:[{title:"cccc",detail:"xxxx",text:"a"}]},
+    //      {groupName:"salesforce", subItem:[{title:"cccc",detail:"xxxx",text:"a"}]},
+    //      {groupName:"c++", subItem:[{title:"cccc",detail:"xxxx",text:"a"}]}
+    //     ];
+    //  function createPath(currentPath , datas){
+    //      if(datas instanceof Array){
+    //          for(var i = 0 ; i<datas.length ; i++){
+    //             //datas[i].path = currentPath + "/" + i;
+    //              createPath(datas[i].path, datas[i]);
+    //          }
+    //      }else if(typeof datas === "object"){
+    //          for(var p in datas){
+    //             if(typeof datas[p] === "object" ){
+    //                 datas[p].path = currentPath + "/" + p;
+    //                 createPath(datas[p].path , datas[p]);
+    //             } 
+    //          }
+    //      }
+    //  }
+    //  createPath("memos", datas);
+    //  console.log(datas);
+    //  database.ref("memos").set(datas);
+
+    // database.ref('memos').once("value").then(function(data){
+    //     var memos = data.val();
+        
+    //     var v = new Vue({
+    //         el: '#app',
+    //         data: {memos:memos},
+    //         methods: {
+    //             createMemo : function(){
+    //                 this.$refs.memoViewModal.memo = {title:'new',detail:null};
+    //                 this.$refs.memoViewModal.show();
+    //             }
+    //         }
+    //     });
+    // });
+
+
+    var data = {};
+    data.demoList = [];
+    db.collection("Memo").get().then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+            console.log(`${doc.id} => ${doc.data()}`);
+            data.demoList.push(doc.data());
+        });
+        console.log(data.demoList);
+        data.allDemoList = data.demoList;
+        initVue();
+    });
+
+    data.groupNames = [];
+
+    function initVue(){
+        var v = new Vue({
+            el: '#app',
+            data: {data:data},
+            methods: {
+                createMemo : function(){
+                    this.$refs.memoEditModal.memo = {Id:createGuid(), Title:'new', Detail:null};
+                    this.$refs.memoEditModal.show();
+                },
+                groupClick : function(group){
+                    if( group == "All"){
+                        this.data.demoList = data.allDemoList;
+                    }else{
+                        this.data.demoList = filterObject(data.allDemoList , obj => obj.Groups.indexOf(group)!= -1 );
+                    }
+                },
+                addMemo : function(memo){
+                    this.data.allDemoList.push(memo);
+                }
+            }
+        });
+    }
+    function createGuid(){
+        var d = new Date();
+        return "r" + d.getFullYear() + "-"+ (d.getMonth() + 1) + "-" + d.getDate() + "-" + d.getHours() + "-" + d.getMinutes() + "-" + d.getSeconds() + "-" + d.getMilliseconds();
+    }
+
+    database.ref('SystemData/GroupNames').once("value").then(function(returnVal){
+        data.groupNames = returnVal.val();
+        data.groupNames.unshift("All");
+    });
+
+    // use: filterObject(arr, obj => obj.p = "xxx")
+    function filterObject(objArray, trueFunc){
+        var result = [];
+        for(var i=0 ; i<objArray.length; i++){
+            var obj = objArray
+            if(trueFunc(objArray[i]) == true){
+                result.push(objArray[i]);
+            }
+        }
+        return result;
+    }
+
+    // db.collection("Memo").add({
+    //     first: "Alan",
+    //     middle: "Mathison",
+    //     last: "Turing",
+    //     born: 1912
+    // })
+    // .then(function(docRef) {
+    //     console.log("Document written with ID: ", docRef.id);
+    // })
+    // .catch(function(error) {
+    //     console.error("Error adding document: ", error);
+    // });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,6 @@
+.grid-table{
+    border-collapse: collapse;
+}
+.grid-table td{
+    border:1px solid gray;
+}

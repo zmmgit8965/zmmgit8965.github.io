@@ -1,0 +1,200 @@
+<script>
+    function w3_open() {
+        document.getElementById("mySidebar").style.display = "block";
+    }
+    function w3_close() {
+        document.getElementById("mySidebar").style.display = "none";
+    }
+    function aClick(el) {
+        var host = window.location.href.substring(0, window.location.href.indexOf("host/"));
+        window.location = host + el.getAttribute("link");
+        return false;
+    }
+</script>
+
+<div class="w3-sidebar w3-bar-block w3-animate-left" style="display:none;width:100%;" id="mySidebar">
+    <button class="w3-bar-item w3-button w3-large" onclick="w3_close()">Close &times;</button>
+
+    <div class="w3-container">
+        <div class="w3-panel w3-pale-blue w3-leftbar w3-rightbar w3-border-blue">
+            <h2>3d</h2>
+        </div>
+        <ul class="w3-ul w3-border">
+            <li><a onclick="return aClick(this)" href="" link="/host/javascript/3djs/index.html">3d demos</a></li>
+
+        </ul>
+    </div>
+
+    <div class="w3-container">
+        <div class="w3-panel w3-pale-blue w3-leftbar w3-rightbar w3-border-blue">
+            <h2>Java Script</h2>
+        </div>
+        <ul class="w3-ul w3-border">
+            <li><a onclick="return aClick(this)" href="" link="host/javascript/htmlImportHtml/importHtmlSample.html">htmlImportHtmlSample</a></li>
+            <li><a onclick="return aClick(this)" href="" link="host/javascript/localStorage/localStorageSample.html">localStorageSample</a></li>
+            <li><a href="https://easings.net">javascript easings</a></li>
+            <li><a onclick="return aClick(this)" href="" link="host/javascript/drawSector/main.html">javascript draw
+                    sector</a></li>
+            <li><a onclick="return aClick(this)" href="" link="host/javascript/ganttChart/index.html">ganttChart</a></li>
+            <li><a onclick="return aClick(this)" href="" link="host/javascript/treeGrid/ver2.0/treeGrid.html">TreeGrid</a></li>
+            <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Template_literals">Template
+                    literals</a></li>
+            <li><a href="https://developers.google.com/chrome-developer-tools/docs/commandline-api#geteventlistenersobject">get
+                    Event Listenters</a></li>
+
+            <li><a onclick="return aClick(this)" href="" link="host/javascript/chartjs/index.html">char js</a></li>
+
+        </ul>
+    </div>
+
+    <div class="w3-container">
+        <div class="w3-panel w3-pale-blue w3-leftbar w3-rightbar w3-border-blue">
+            <h2>VUE</h2>
+        </div>
+        <ul class="w3-ul w3-border">
+            <li><a onclick="return aClick(this)" href="" link="host/vue/componentSample.html">componentSample</a></li>
+            <li><a onclick="return aClick(this)" href="" link="host/vue/dataTableLibSample.html">dataTableLibSample</a></li>
+            <li><a href="https://stackoverflow.com/questions/45565870/cannot-use-v-for-on-stateful-component-root-element-in-vuejs">Cannot
+                    use v-for on stateful component root element because it renders multiple elements.</a></li>
+
+            <li><a href="https://stackoverflow.com/questions/41042641/vue-js-2-0-slow-when-modifying-unrelated-data">slow
+                    problem(result by v-model.lazy)</a></li>
+
+
+        </ul>
+    </div>
+
+    <div class="w3-container">
+        <div class="w3-panel w3-pale-blue w3-leftbar w3-rightbar w3-border-blue">
+            <h2>Git</h2>
+        </div>
+        <ul class="w3-ul w3-border">
+            <li><a onclick="return aClick(this)" href="" link="host/git/git.html">gitExamples</a></li>
+        </ul>
+    </div>
+
+    <div class="w3-container">
+        <div class="w3-panel w3-pale-blue w3-leftbar w3-rightbar w3-border-blue">
+            <h2>IOS Dev</h2>
+        </div>
+        <ul class="w3-ul w3-border">
+            <li><a href="https://www.makeschool.com/online-courses/tutorials/learn-swift-by-example">Learn Swift by
+                    Example</a></li>
+            <li><a href="https://www.raywenderlich.com/167743/sqlite-swift-tutorial-getting-started">SQLite With Swift
+                    Tutorial: Getting Started</a></li>
+            <li><a href="https://www.raywenderlich.com/160521/storyboards-tutorial-ios-11-part-1">Storyboards Tutorial
+                    for iOS: Part 1</a></li>
+        </ul>
+    </div>
+
+    <div class="w3-container">
+        <div class="w3-panel w3-pale-blue w3-leftbar w3-rightbar w3-border-blue">
+            <h2>QA</h2>
+        </div>
+        <ul class="w3-ul w3-border">
+            <li><a onclick="return aClick(this)" href="" link="host/QA/howToAjaxLocalFileInChrom.html">How to fix cross
+                    origin requests are only supported for protocol schemes: http, data, chrome, chrome-extension,
+                    https</a></li>
+            <li><a href="https://superuser.com/questions/105838/how-does-router-know-where-to-forward-packet">How does
+                    Router know where to forward packet</a></li>
+
+        </ul>
+    </div>
+
+    <div class="w3-container">
+        <div class="w3-panel w3-pale-blue w3-leftbar w3-rightbar w3-border-blue">
+            <h2>Salesforce</h2>
+        </div>
+        <ul class="w3-ul w3-border">
+            <li><a href="https://developer.salesforce.com/docs/atlas.ja-jp.lightning.meta/lightning/aura_compref_ui_inputDate.htm">Component
+                    Refrence</a></li>
+            <li><a href="https://zmm-dev-ed.lightning.force.com/lightning/n/pppp12345__AllTag">alltagPage</a></li>
+            <li><a onclick="return aClick(this)" href="" link="host/salesforce/notes.html">Node</a></li>
+            <li><a onclick="return aClick(this)" href="" link="host/salesforce/salesforceSOAP/salesforceSOAP.html">salesforceSOAP</a></li>
+            <li><a onclick="return aClick(this)" href="" link="host/salesforce/customLightingLayout/customLightingLayout.html">customLightingLayout</a></li>
+            <li><a href="https://developer.salesforce.com/blogs/developer-relations/2015/06/salesforce-soap-api-sample-wsdls.html">SOAP
+                    HTTP Request Sample(httptool:chrome plug in postman)</a></li>
+            <li><a onclick="return aClick(this)" href="" link="host/salesforce/salesforceSOAP/httpSOAPSample/httpSOAPSample.html">httpSOAPSample</a></li>
+            <li><a href="https://developer.salesforce.com/docs/component-library/bundle/lightning:recordEditForm/specification">lightning
+                    component refrence</a></li>
+            <li><a href="https://developer.salesforce.com/docs/atlas.en-us.salesforce_app_limits_cheatsheet.meta/salesforce_app_limits_cheatsheet/salesforce_app_limits_platform_vf.htm">salesforce
+                    limits</a></li>
+
+        </ul>
+    </div>
+
+    <div class="w3-container">
+        <div class="w3-panel w3-pale-blue w3-leftbar w3-rightbar w3-border-blue">
+            <h2>Android</h2>
+        </div>
+        <ul class="w3-ul w3-border">
+            <li><a onclick="return aClick(this)" href="" link="host/android/android_tutorial.pdf">android_tutorial</a></li>
+            <li><a onclick="return aClick(this)" href="" link="host/android/Android-Programming-Cookbook.pdf">Android-Programming-Cookbook</a></li>
+
+            <li><a onclick="return aClick(this)" href="" link="host/android/useButton.html">useButton</a></li>
+            <li><a onclick="return aClick(this)" href="" link="host/android/useLineLayout.html">useLineLayout</a></li>
+            <li><a onclick="return aClick(this)" href="" link="host/android/useDrag.html">useDrag</a></li>
+            <li><a onclick="return aClick(this)" href="" link="host/android/androidConnectSalesforce.html">Android
+                    Connect Salesforce</a></li>
+            <li><a href="https://examples.javacodegeeks.com/android/core/activity/android-activity-transition-example/">FramTransition</a></li>
+            <li><a href="https://developer.android.com/guide/">google guide</a></li>
+
+        </ul>
+    </div>
+
+    <div class="w3-container">
+        <div class="w3-panel w3-pale-blue w3-leftbar w3-rightbar w3-border-blue">
+            <h2>memo program</h2>
+        </div>
+        <ul class="w3-ul w3-border">
+            <li><a onclick="return aClick(this)" href="" link="host/javascript/memoProgram/home.html">memo program</a></li>
+        </ul>
+    </div>
+
+    <div class="w3-container">
+        <div class="w3-panel w3-pale-blue w3-leftbar w3-rightbar w3-border-blue">
+            <h2>google home</h2>
+        </div>
+        <ul class="w3-ul w3-border">
+            <li><a href="https://qiita.com/tkyko13/items/163e80d3b65543d6a9da">ラズパイにgoogle-home-notifierを入れようとしたけどつまづいた</a></li>
+            <li><a href="https://qiita.com/SatoTakumi/items/c9de7ff27e5b70508066">Google Home開発入門 /
+                    google-home-notifier解説</a></li>
+        </ul>
+    </div>
+
+    <div class="w3-container">
+        <div class="w3-panel w3-pale-blue w3-leftbar w3-rightbar w3-border-blue">
+            <h2>css</h2>
+        </div>
+        <ul class="w3-ul w3-border">
+            <li><a onclick="return aClick(this)" href="" link="host/css/index.html"">常用CSS</a></li>
+        </ul>
+    </div>
+
+    <div class="w3-container">
+        <div class="w3-panel w3-pale-blue w3-leftbar w3-rightbar w3-border-blue">
+            <h2>Design</h2>
+        </div>
+        <ul class="w3-ul w3-border">
+            <li><a href="http://www.paletton.com/">Color picker</a></li>
+            <li><a href="http://paletton.com/#uid=53G100khtKk6PXDcBRHlABHpLv4">Color picker t</a></li>
+            <li><a href="https://htmlcolorcodes.com/resources/best-color-palette-generators/">best color picker</a></li>
+            <li><a href="http://www.heropatterns.com/">svg bg1</a></li>
+            <li><a href="https://www.svgbackgrounds.com/#cornered-stairs">svg bg2</a></li>
+        </ul>
+    </div>
+
+    <div class="w3-container">
+        <div class="w3-panel w3-pale-blue w3-leftbar w3-rightbar w3-border-blue">
+            <h2>IDEL</h2>
+        </div>
+        <ul class="w3-ul w3-border">
+            <li>タスク管理、カスタマイズできる、Aカスタマイズで日記、Bカスタマイズで支出管理</li>
+            <li>携帯、pad、PC通用APP作成プラットフォーム</li>
+            <li>chart er 簡単なチャット作成App</li>
+            <li>3dで技術を革新、3d chart, 3d form , 3d window</li>
+        </ul>
+    </div>
+</div>
+
+<button class="w3-button w3-white w3-xxlarge" onclick="w3_open()">&#9776;</button>

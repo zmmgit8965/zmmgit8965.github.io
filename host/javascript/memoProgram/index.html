@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>W3.CSS Template</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+    <link type="application/atom+xml" rel="alternate" href="https://quilljs.com/feed.xml" title="Quill - Your powerful rich text editor" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/monokai-sublime.min.css" />
+    <link rel="stylesheet" href="https://cdn.quilljs.com/1.3.6/quill.snow.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.js" type="5e24fc88f4964762b08d49a6-"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js" type="5e24fc88f4964762b08d49a6-"></script>
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js" type="5e24fc88f4964762b08d49a6-"></script>
+    <script src="https://ajax.cloudflare.com/cdn-cgi/scripts/4f936b58/cloudflare-static/rocket-loader.min.js" data-cf-nonce="5e24fc88f4964762b08d49a6-" defer=""></script>
+    
+
+
+
+    <script src="../../../js/vue.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.js" integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
+        crossorigin="anonymous"></script>
+    <script src="https://www.gstatic.com/firebasejs/5.2.0/firebase.js"></script>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <style>
+        table{
+            border-collapse: collapse;
+        }
+        *{
+            box-sizing: border-box;
+        }
+        .menuItem{
+            padding:4px 8px;
+            cursor: pointer;
+        }
+        .menuItem:hover{
+            background-color: lightgray;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app" style="width:100vw;height:100vh;">
+        <table style="width:100%;height:100%;">
+            <tr>
+                <td style="width:300px; padding:10px;">
+                    <div class="w3-card" style="height:100%;width:100%;">
+                        <button v-on:click="addNode()">+</button>
+                        <table style="width:100%;">
+                            <tr v-for="d in data.Dict" class="menuItem" >
+                                <td v-on:click="onPathClick(d.path)">{{d.path}}</td>
+                                <td width="70px">
+                                    <button style="width:30px" v-on:click="addNode(d)">+</button>
+                                    <button style="width:30px" v-on:click="deleteNode(d)">-</button>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </td>
+                <td style="padding:10px;padding-left:0;min-width:50%;">
+                    <div class="w3-card" style="height:100%;width:100%;">
+                        <div style="height:1px;"></div>
+                        <div>
+                            <button v-on:click="saveClick()">保存</button>
+                        </div>
+                        <div>
+
+<div  id="toolbar-container">
+    <span class="ql-formats">
+    <select class="ql-font"></select>
+    <select class="ql-size"></select>
+    </span>
+    <span class="ql-formats">
+    <button class="ql-bold"></button>
+    <button class="ql-italic"></button>
+    <button class="ql-underline"></button>
+    <button class="ql-strike"></button>
+    </span>
+    <span class="ql-formats">
+    <select class="ql-color"></select>
+    <select class="ql-background"></select>
+    </span>
+    <span class="ql-formats">
+    <button class="ql-script" value="sub"></button>
+    <button class="ql-script" value="super"></button>
+    </span>
+    <span class="ql-formats">
+    <button class="ql-header" value="1"></button>
+    <button class="ql-header" value="2"></button>
+    <button class="ql-blockquote"></button>
+    <button class="ql-code-block"></button>
+    </span>
+    <span class="ql-formats">
+    <button class="ql-list" value="ordered"></button>
+    <button class="ql-list" value="bullet"></button>
+    <button class="ql-indent" value="-1"></button>
+    <button class="ql-indent" value="+1"></button>
+    </span>
+    <span class="ql-formats">
+    <button class="ql-direction" value="rtl"></button>
+    <select class="ql-align"></select>
+    </span>
+    <span class="ql-formats">
+    <button class="ql-link"></button>
+    <button class="ql-image"></button>
+    <button class="ql-video"></button>
+    <button class="ql-formula"></button>
+    </span>
+    <span class="ql-formats">
+    <button class="ql-clean"></button>
+    </span>
+</div>
+<div id="quill" style="height:80%;"></div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</body>
+
+<script>
+    // Initialize Firebase
+    var config = {
+        apiKey: "AIzaSyAjv30ycfoiuYTRYFVQM-RwPj48iQG1oWM",
+        authDomain: "memosystem1.firebaseapp.com",
+        databaseURL: "https://memosystem1.firebaseio.com",
+        projectId: "memosystem1",
+        storageBucket: "",
+        messagingSenderId: "797681972148"
+    };
+    firebase.initializeApp(config);
+    var database = firebase.database();
+    var db = firebase.firestore();
+
+    String.prototype.replaceAll = function(search, replacement) {
+        var target = this;
+        return target.replace(new RegExp(search, 'g'), replacement);
+    };
+
+    // db.collection("Dict").get().then((querySnapshot) => {
+    //     var dict = [];
+    //     querySnapshot.forEach((doc) => {
+    //         dict.push(doc.id);
+    //     });
+    //     data.Dict = dict;
+    // });
+
+    firebase.database().ref('/MenuDict').once('value').then(function(snapshot) {
+        var obj = snapshot.val();
+        var dictList = [];
+        addDictItem(dictList, obj , "");
+        data.Dict = dictList;
+    });
+
+    function addDictItem(dictList, obj, path){
+        for(var name in obj){
+            var pathParam = path + "/" + name;
+            dictList.push({text:name, path:pathParam});
+            if(typeof obj[name] === 'object'){
+                addDictItem(dictList, obj[name], pathParam);
+            }
+        }
+    }
+
+    var data = {Dict:[], currentDocId:"", contentHtml:""};
+    function initVue(){
+        var v = new Vue({
+            el: '#app',
+            data: {data:data},
+            methods: {
+                initQuill : function(){
+                    if(this.quill == undefined){
+                        this.quill = new Quill($("#quill")[0], {
+                                                    modules: {
+                                                    syntax: true,
+                                                    toolbar: $("#toolbar-container")[0]
+                                                    },
+                                                    theme: 'snow',
+                                                    readOnly: false
+                                                });
+                    }
+                },
+                onPathClick : function(path){
+                    var me = this;
+                    data.currentDocId = path.replaceAll("/", "##");
+                    var v = db.collection("Dict").doc(data.currentDocId);
+                    v.onSnapshot(function(snap){
+                        data.contentHtml = snap.get("html");
+                        me.initQuill();
+                        if(data.contentHtml && data.contentHtml.startsWith("{")){
+                            me.quill.setContents(JSON.parse(data.contentHtml));
+                        }else{
+                            me.quill.setContents({});
+                        }
+                    });
+                },
+                saveClick : function(){
+
+                    var content = this.quill.getContents();
+                    var txt = JSON.stringify(content);
+
+                    var content = this.quill.getContents();
+                    db.collection("Dict").doc(data.currentDocId).set({html: JSON.stringify(content)})
+                    .then(function() {
+                        console.log("Document successfully written!");
+                        alert("save over.")
+                    })
+                    .catch(function(error) {
+                        console.error("Error writing document: ", error);
+                    });
+
+                },
+                addNode : function(parent){
+
+                    var nodeName = window.prompt("Input Node Name.");
+                    
+                    if(!nodeName){
+                        return;
+                    }
+
+                    var p = "";
+                    if(parent){
+                        p = parent.path;
+                    }
+                    debugger;
+                    firebase.database().ref('/MenuDict' + p + "/" + nodeName).set(0, function(error) {
+                        debugger;
+                        if (error) {
+                        } else {
+                        }
+                    });
+                },
+                deleteNode : function(node){
+                    if(!window.confirm("Delete ?")){
+                        return;
+                    }
+
+                    var ref = firebase.database().ref('/MenuDict' + node.path);
+                    ref.getParent().once('value').then(function(snapshot) {
+                        var obj = snapshot.val();
+                        var i=0 ;
+
+                        for(var n in obj){
+                            if(i>0){
+                                ref.remove();
+                                return;
+                            }
+                            i++;
+                        }
+                        ref.getParent().set(0);
+                    });
+
+                    //ref.remove();
+                }
+            }
+        });
+    }
+
+    initVue();
+    initQuill();
+    </script>
+</html>

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>home</title>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <script src="../../../js/FileSaver.js"></script>
+    <script>
+    function save(){
+        var blob = new Blob(["Hello, world!"], {type: "text/plain;charset=utf-8"});
+        FileSaver.saveAs(blob, "hello world.txt");
+    }
+    </script>
+</head>
+<body>
+    <script src="../../../js/globleBase.js"></script>
+    <a href="https://github.com/eligrey/FileSaver.js" target="_blank">https://github.com/eligrey/FileSaver.js</a>
+    <button onclick="save()">save</button>
+</body>
+</html>

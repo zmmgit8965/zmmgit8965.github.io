@@ -1,0 +1,69 @@
+<html>
+    <head>
+        <script src="../three.js"></script>
+        <script src="../../controls/OrbitControls.js"></script>
+        <script src="../../js/ParametricGeometries.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.2/dat.gui.js"></script>
+    </head>
+    <body>
+        <canvas id="c"></canvas>
+        <script src="base.js"></script>
+        <script>
+function onLoadOver(){
+    camera.lookAt(mesh.position);
+}
+var GuiData = function() {
+    this.message = 'dat.gui';
+    this.lookAt = function(){
+        camera.lookAt(mesh.position);
+    }
+    this.cameraX = 100;
+    this.cameraY = 100;
+    this.cameraZ = 100;
+};
+
+var guiData = new GuiData();
+
+function initDatGui(){
+    var gui = new dat.GUI();
+    gui.add(guiData, 'message');
+    gui.add(guiData, 'lookAt');
+    gui.add(guiData, 'cameraX', 0, 1000);
+    gui.add(guiData, 'cameraY', 0, 1000);
+    gui.add(guiData, 'cameraZ', 0, 1000);
+}
+
+function render(){
+    camera.position.set(guiData.cameraX, guiData.cameraY, guiData.cameraZ);
+
+    renderer.render(scene, camera);
+
+    requestAnimationFrame(render);
+}
+
+function initControl(){
+    // var controls = new THREE.OrbitControls( camera, renderer.domElement );
+    // controls.minDistance = 50;
+    // controls.maxDistance = 150;
+    // controls.maxPolarAngle = Math.PI / 2;
+}
+
+function initGeometry(){
+    
+    var geometry = new THREE.PlaneGeometry(10, 10, 10, 10);
+
+    var map = new THREE.TextureLoader().load( '../../textures/UV_Grid_Sm.jpg' );
+    map.wrapS = map.wrapT = THREE.RepeatWrapping;
+    map.anisotropy = 16;
+
+    material = new THREE.MeshPhongMaterial( { map: map, side: THREE.DoubleSide } );
+
+    mesh = new THREE.Mesh(geometry, material);
+    mesh.position.set(0,15,0);
+
+    scene.add(mesh);
+}
+
+        </script>
+    </body>
+</html>

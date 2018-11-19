@@ -1,0 +1,54 @@
+<apex:page sidebar="false" >
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>dataTableLibSample</title>
+    <link href="https://unpkg.com/bootstrap@3.3.5/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" />
+    <link href="https://unpkg.com/vue2-datatable-component/dist/min.css" rel="stylesheet" />
+</head>
+<body>
+    <script src="../../js/globleBase.js"></script>
+
+  <div id="app"></div>
+
+<script src="https://unpkg.com/vue@2.4.4/dist/vue.min.js"></script>
+<script src="https://unpkg.com/jquery@2.1.4/dist/jquery.min.js"></script>
+<script src="https://unpkg.com/bootstrap@3.3.5/dist/js/bootstrap.min.js"></script>
+<script src="https://unpkg.com/vue2-datatable-component/dist/min.js"></script>
+<script>
+
+  var datas = [];
+
+  for(var i=0 ; i<50; i++){
+    datas.push({uid:"uid" + i,name:"name" + i,age:"age" + i,email:"email" + i,country:"country" + i});
+  }
+
+  new Vue({
+    el: '#app',
+    template: [
+      '<div class="container">',
+        '<code>query: {{ query }}</code>',
+        '<datatable v-bind="$data" />',
+      '</div>>'
+    ].join(''),
+    data: function () {
+      return {
+        columns: [
+          { title: 'User ID', field: 'uid', sortable: true },
+          { title: 'Username', field: 'name' },
+          { title: 'Age', field: 'age', sortable: true },
+          { title: 'Email', field: 'email' },
+          { title: 'Country', field: 'country' }
+        ],
+        data: datas, // no data  heroku
+        total: datas.length,
+        query: {}
+      }
+    }
+  })
+</script>
+</body>
+</html>
+</apex:page>

@@ -1,0 +1,28 @@
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>dataTableLibSample</title>
+  <script src="../../../js/vue.js"></script>
+  <link href="inputLabel.css" rel="stylesheet" />
+  <script src="inputLabel.js"></script>
+  
+</head>
+<body>
+    <script src="../../js/globleBase.js"></script>
+
+  <div id="app">
+        <input-label v-bind:value="value"></input-label>
+  </div>
+
+<script>
+
+  new Vue({
+    el: '#app',
+    data: {value:"vvvvvv"},
+    methods: {
+    }
+  })
+</script>
+</body>
+</html>

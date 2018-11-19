@@ -1,0 +1,304 @@
+<html>
+<head>
+    <meta charset="UTF-8" />
+  <title>simplistTemplate</title>
+  <script src="../../../js/vue.js"></script>
+  <script
+    src="https://code.jquery.com/jquery-3.3.1.js"
+    integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
+    crossorigin="anonymous"></script>
+    <script src="../../../js/download.js"></script>
+  <style>
+    *{
+      font-family: arial,sans-serif;
+    }
+    .taskTable{
+      border-collapse: collapse;
+    }
+    .taskTable .weekRow{
+      background-color:lightblue;
+    }
+    .taskTable td{
+      border: 1px solid #A9A9A9	;
+    }
+    .taskTable td>div{
+      padding: 3px;
+    }
+    .taskTable .todayTitle{
+      background-color: #FFD700;
+    }
+    .taskTable .weekRow td{
+      text-align: center;
+    }
+    .taskTable .weekEnd{
+      background-color: #DCDCDC;
+    }
+    .taskTable .taskTdCell{
+      height:28px;
+    }
+    .taskTable .dayTitleTd{
+      width:28px;
+      min-width:28px;
+      text-align:center;
+    }
+    .taskTable .taskTitleTdCell{
+      cursor: pointer;
+    }
+    .tasksDiv .taskDiv{
+      position: absolute;
+      background-color:#1E90FF;
+      white-space: nowrap;
+      border:1px solid rgb(23, 106, 124);
+      height:23px;
+      box-shadow: 2px 2px 8px grey;
+      cursor: pointer;
+      opacity: 0.9;
+      height:28px;
+    }
+    .noBreak {
+      white-space: nowrap;
+    }
+  </style>
+</head>
+<body style="overflow:auto;">
+  <script src="../../../js/globleBase.js"></script>
+
+  <button onclick="donwloadData()">download Data</button>
+
+  <div id="app" style="position: relative;">
+    <table class="taskTable">
+      <colgroup>
+        <col />
+        <col v-for="day in baseModel.days" v-bind:class="(day.isWeekEnd() ? 'weekEnd' : '') + (day.dateString() === baseModel.currentDay.dateString() ? 'todayTitle' : '')"></col>
+      </colgroup>
+      <tr class="weekRow">
+        <td style="border:none;background-color:white;" rowspan="2">
+          <button v-on:click="newTask()">newTask</button>
+        </td>
+        <td v-for="week in baseModel.weeks" v-bind:colSpan='week.colSpan'>
+          <div>
+            {{week.last.getMonth() +1}}月（第{{week.weekNum}}周）
+          </div>
+        </td>
+      </tr>
+      <tr class="dayRow">
+        <td class="dayTitleTd" v-for="day in baseModel.days">
+          <div>
+            {{day.getDate()}}
+          </div>
+        </td>
+      </tr>
+      <tr v-for="task in tasks" class="taskRow">
+        <td class="noBreak taskTitleTdCell" v-on:click="taskClick(task)">{{task.values.title}}</td>
+        <td class="taskTdCell" v-for="day in baseModel.days">
+        </td>
+      </tr>
+    </table>
+    <div class="tasksDiv">
+        <div v-for="(task,index) in tasks" v-bind:class="'taskDiv ' + 'taskDiv' + index"
+             v-on:click="taskClick(task)">
+          {{task.values.title}}
+        </div>
+    </div>
+    <div v-if="selectedTask != null">
+      Detail:<br />
+      <table>
+        <tr>
+          <td>title:</td>
+          <td><input type="text" v-model="selectedTask.values.title" /></td>
+        </tr>
+        <tr>
+          <td>start:</td>
+          <td><input type="text" v-model="selectedTask.values.start" /></td>
+        </tr>
+        <tr>
+          <td>end:</td>
+          <td><input type="text" v-model="selectedTask.values.end" /></td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    // base class overwrite
+    Date.prototype.addDays = function(days) {
+      var dat = new Date(this.valueOf());
+      dat.setDate(dat.getDate() + days);
+      return dat;
+    }
+    Date.prototype.dateString = function(){
+      return [this.getFullYear(), this.getMonth()+1, this.getDate()].join("/");
+    }
+    Date.prototype.shortDateString = function(){
+      return [this.getMonth()+1, this.getDate()].join("/");
+    }
+    Date.prototype.isWeekEnd = function(){
+      var day = this.getDay();
+      return (day === 5) || (day === 6);
+    }
+    Date.prototype.isLastDayOfWeek = function(){
+      return this.getDay() === 6;
+    }
+    Date.prototype.isLastDayOfMonth = function(){
+      var nextDay = new Date(this.getTime());
+      nextDay.setDate(this.getDate() + 1);
+      return nextDay.getMonth() !== this.getMonth();
+    }
+    Date.OneDayTime = 24*60*60*1000;
+
+
+    // api base class
+
+    var BaseModel = function(currentDay){
+      if(currentDay === undefined){
+        currentDay = new Date();
+      }
+      this.currentDay = currentDay;
+
+      this.days = [];
+      this.dayStrings = [];
+
+      var start = today.addDays(-BaseModel.ViewDayCount/2);
+      for(var i= 0 ; i<BaseModel.ViewDayCount ; i++){
+        var d = start.addDays(i);
+        this.days.push(d);
+        this.dayStrings.push(d.dateString());
+      }
+
+      this.weeks = [];
+
+      var weekSpan = 0;
+      var weekNum =  Math.ceil(this.days[0].getDate() / 7);
+      for(var i= 0 ; i<this.days.length ; i++){
+        weekSpan ++ ;
+        if(this.days[i].isLastDayOfWeek()){
+          this.weeks.push({last:this.days[i], colSpan: weekSpan, weekNum: weekNum});
+          weekSpan = 0;
+          weekNum ++;
+        }
+
+        if(this.days[i].isLastDayOfMonth()){
+          weekNum = 1;
+        }
+      }
+
+    }
+    BaseModel.ViewDayCount = 80
+
+    var Task = function(values){
+      this.values = values;
+      this.startDate = new Date(this.values.start);
+      this.endDate = new Date(this.values.end);
+      this.endDate.setHours(23);
+    }
+    Task.prototype.refreshDate = function(){
+      this.startDate = new Date(this.values.start);
+      this.endDate = new Date(this.values.end);
+      this.endDate.setHours(23);
+    }
+
+    // app date
+
+    var today = new Date(); 
+    var todayStr = today.dateString();
+
+var v = null;
+function init(datas){
+    var tasks = [];
+    for(var i =0 ; i<datas.length ; i++){
+      tasks.push(new Task(datas[i]));
+    }
+
+    var dateList = [];
+    var start = today.addDays(-15);
+    for(var i = 0 ; i<30 ; i++){
+      var d = start.addDays(i);
+      dateList.push({date: d , isToday: todayStr == d.dateString()});
+    }
+
+    // api source
+
+    v = new Vue({
+      el: '#app',
+      data: {tasks:tasks, baseModel:new BaseModel(new Date("2018-06-13")), selectedTask: null},
+      created: function(){
+              this.computTaskDivPosition();
+              console.log("created");
+            },
+      mounted: function(){
+        this.updateDomPosition();
+      },
+      updated : function(){
+        if(this.selectedTask) this.selectedTask.refreshDate();
+        this.computTaskDivPosition();
+        this.updateDomPosition();
+      },
+      methods: {
+          computTaskDivPosition : function(){
+            for(var i=0 ; i<this.tasks.length ; i++){
+              var task = this.tasks[i];
+              var startStr = task.startDate.dateString();
+              var endStr = task.endDate.dateString();
+              task.startIndex = this.baseModel.dayStrings.indexOf(startStr);
+              task.endIndex = this.baseModel.dayStrings.indexOf(endStr);
+            }
+          },
+          updateDomPosition: function(){
+            for(var i=0 ; i<this.tasks.length; i++){
+              var task = this.tasks[i];
+              var thisEl = $(".taskDiv" + i);
+              var startIndex = task.startIndex;
+              var startPosition = $(".taskTable .dayRow").children().eq(startIndex).position();
+              var startLeft = startPosition.left;
+              var endIndex = task.endIndex;
+              var endCell = $(".taskTable .dayRow").children().eq(endIndex);
+              var endPosition = endCell.position();
+              var endRight = endPosition.left + endCell.width();
+              var width = endRight - startLeft + 4;
+
+              thisEl.css("left", startLeft + "px");
+              thisEl.css("width", width + "px");
+
+              var top = $(".taskTable .taskRow").eq(i).position().top;
+              thisEl.css("top", top + "px");
+            }
+          },
+          taskClick : function(task){
+            this.selectedTask = task;
+          },
+          newTask : function(){
+            this.tasks.push(new Task({title:"New Task",  start:"2018-06-08",  end:"2018-06-14"}))
+          }
+      }
+    });
+}
+    $.getJSON( "data.json", {} )
+      .done(function( json ) {
+        init(json);
+        console.log( "JSON Data: " + json );
+      })
+      .fail(function( jqxhr, textStatus, error ) {
+        var json =  [{title:"ページ1設計", start:"2018-05-13", end:"2018-05-16"}
+                ,{title:"ページ1開発",  start:"2018-05-16",  end:"2018-05-20"}
+                ,{title:"ページ1テスト",  start:"2018-05-20",  end:"2018-05-22"}
+                ,{title:"ページ2設計",  start:"2018-05-23",  end:"2018-05-25"}
+                ,{title:"ページ2開発",  start:"2018-05-26",  end:"2018-05-27"}
+                ,{title:"ページ2テスト",  start:"2018-05-28",  end:"2018-05-31"}
+                ,{title:"ページ3設計",  start:"2018-06-01",  end:"2018-06-03"}
+                ,{title:"ページ3開発",  start:"2018-06-04",  end:"2018-06-07"}
+                ,{title:"ページ3テスト",  start:"2018-06-08",  end:"2018-06-14"}];
+        init(json);
+    });
+
+function donwloadData(){
+  var ds = [];
+  for(var i = 0 ; i<v.tasks.length ; i++){
+    var task = v.tasks[i].values;
+    ds.push(task);
+  }
+  download("data.json",JSON.stringify(ds));
+}
+
+  </script>
+</body>
+</html>

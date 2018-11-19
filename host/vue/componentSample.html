@@ -1,0 +1,47 @@
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>dataTableLibSample</title>
+  <script src="../../js/vue.js"></script>
+  <link href="componentSample/vue_gird.css" rel="stylesheet" />
+  <script src="componentSample/vue_grid.js"></script>
+  
+</head>
+<body>
+    <script src="../../js/globleBase.js"></script>
+
+  <div id="app">
+      <div>
+        <input v-model="datas[0].name" type="text" />
+        <button v-on:click="edit()">edit</button>
+      </div>
+      <table>
+          <tr>
+              <td><vue-grid v-bind:grid-data="datas"></vue-grid></td>
+              <td><vue-grid v-bind:grid-data="datas"></vue-grid></td>
+          </tr>
+      </table>
+  </div>
+
+<script>
+
+    var datas = [];
+
+  for(var i=0 ; i<30; i++){
+    datas.push({uid:"u" + i,name:"n" + i,age:"a" + i,email:"e" + i,country:"c" + i});
+  }
+
+  new Vue({
+    el: '#app',
+    data: {datas:datas},
+    methods: {
+        edit : function(){
+            
+            this.datas[0].name=prompt("enter value");
+        }
+    }
+  })
+</script>
+</body>
+</html>

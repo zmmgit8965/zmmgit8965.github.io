@@ -1,0 +1,128 @@
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>drawSector</title>
+    <script src="../../../js/vue.js"></script>
+    <script src="../../../js/easing.js"></script>
+    </head>
+    <body>
+        <script src="../../../js/globleBase.js"></script>
+        <div id="app">
+            <button onclick="next()">next</button>
+            <svg width="300" height="300" viewBox="0 0 300 300">
+                <g id="svgRoot" transform="translate(150,150)" stroke="#000" stroke-width="1">
+                    <path id="sectorPath" v-bind:d="d" fill="#f00" stroke="none"/>
+                    <circle cx="0" cy="0" r="100" stroke="gray" stroke-width="1" fill="none"/>
+                </g>
+            </svg>
+        </div>
+
+        <script>
+        var n = 0;//0-360
+        var radio = 30;
+        var r = 100;
+        var x = r * Math.sin(radio * (Math.PI / 180));
+        var y = r * Math.cos(radio * (Math.PI / 180));
+
+        function computeXY(r, radio){
+            return {x : floor(r * Math.sin(radio * (Math.PI / 180))), y : floor(r * Math.cos(radio * (Math.PI / 180)))};
+        }
+        
+        function floor(num){
+            return Math.floor(num * 100) / 100;
+
+        }
+
+        var sectorPath = document.getElementById("sectorPath");
+
+        var temp = "M0 0 {x1} {y1}A99 99 0 0 1 {x2} {y2}Z";
+
+        var v = new Vue({
+            el: '#app',
+            data: {d:temp},
+            methods : {
+                roll : function(startRadio, endRadio){
+                    var startPoint = computeXY(100, startRadio);
+                    var endPoint = computeXY(100, endRadio);
+
+                    this.d = temp.replace("{x1}", startPoint.x).replace("{y1}", -startPoint.y).replace("{x2}", endPoint.x).replace("{y2}", -endPoint.y);
+                }
+            }
+        })
+
+
+        var pageStep = 10;
+        var stepRadio = 360 / pageStep;
+
+        var pageRange = [];
+
+        for(var i = 0 ; i<360 ;){
+            i += stepRadio;
+            pageRange.push(i);
+        }
+        
+        pageRange.push(0);
+
+        for(var i=0 ; i<pageRange.length - 1 ; i++){
+            var current = pageRange[i];
+            point = computeXY(100, current);
+            var line = document.createElementNS("http://www.w3.org/2000/svg", 'line');
+            line.setAttribute("x1",0);
+            line.setAttribute("y1",0);
+            line.setAttribute("x2", point.x);
+            line.setAttribute("y2", point.y);
+            line.setAttribute("stroke", "#ccc");
+            line.setAttribute("stroke-width", 1);
+            document.getElementById("svgRoot").insertBefore(line , document.getElementById('sectorPath'));
+        }
+
+
+
+//////////////////////////////////////////////////////////////////////
+
+
+
+        var startRadio = 0;
+
+        var easingCallBack = null;
+
+        var seed = 0;
+        function easing(){
+            if(seed >= 1){
+                return ;
+            }else{
+                if(easingCallBack){
+                    easingCallBack(EasingFunctions.easeOutQuad(seed));
+                };
+                seed += 0.03;
+                setTimeout(easing,10);
+            }
+        }
+
+        easingCallBack = function(seed){
+            if((startRadio + 1) == pageRange.length - 1){
+                startRadio = 0;
+            }
+            var start = pageRange[startRadio];
+            var end = pageRange[startRadio + 1];
+            var nextEnd = pageRange.length == startRadio + 2 ? 0 : pageRange[startRadio + 2];
+
+            v.roll(start + ((end - start)*seed) , end + ((nextEnd - end)*seed));
+
+        }
+
+        seed = 0;
+        easing(0);
+
+        function next(){
+            
+            startRadio ++;
+            seed = 0;
+            easing();
+
+        }
+
+        </script>
+    </body>
+</html>

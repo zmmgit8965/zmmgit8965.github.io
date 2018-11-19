@@ -1,0 +1,84 @@
+<html>
+    <head>
+        <script src="../three.js"></script>
+        <script src="../../controls/OrbitControls.js"></script>
+        <script src="../../js/ParametricGeometries.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/dat-gui/0.7.2/dat.gui.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/16.3.5/Tween.min.js"></script>
+    </head>
+    <body>
+        <canvas id="c"></canvas>
+        <script src="base.js"></script>
+        <script>
+function onLoadOver(){
+    camera.lookAt(mesh.position);
+}
+var GuiData = function() {
+    this.message = 'dat.gui';
+    this.lookAt = function(){
+        camera.lookAt(mesh.position);
+    }
+    this.cameraX = 100;
+    this.cameraY = 100;
+    this.cameraZ = 100;
+};
+
+var guiData = new GuiData();
+
+function onCameraChange(){
+
+    var tween = new TWEEN.Tween(camera.position) // Create a new tween that modifies 'coords'.
+        .to({ x: guiData.cameraX, y: guiData.cameraY, z : guiData.cameraZ}, 500) // Move to (300, 200) in 1 second.
+        .easing(TWEEN.Easing.Quadratic.Out) // Use an easing function to make the animation smooth.
+        .onUpdate(function() { // Called after tween.js updates 'coords'.
+            camera.lookAt(mesh.position);
+        })
+        .start(); // Start the tween immediately.
+}
+
+function initDatGui(){
+    var gui = new dat.GUI();
+    gui.add(guiData, 'message');
+    gui.add(guiData, 'lookAt');
+    var controller = gui.add(guiData, 'cameraX', 0, 1000);
+    controller.onChange(onCameraChange);
+    var controller = gui.add(guiData, 'cameraY', 0, 1000);
+    controller.onChange(onCameraChange);
+    var controller = gui.add(guiData, 'cameraZ', 0, 1000);
+    controller.onChange(onCameraChange);
+}
+
+function render(){
+    
+    renderer.render(scene, camera);
+
+    requestAnimationFrame(render);
+    TWEEN.update();
+}
+
+function initControl(){
+    // var controls = new THREE.OrbitControls( camera, renderer.domElement );
+    // controls.minDistance = 50;
+    // controls.maxDistance = 150;
+    // controls.maxPolarAngle = Math.PI / 2;
+}
+
+function initGeometry(){
+    
+    var geometry = new THREE.PlaneGeometry(10, 10, 10, 10);
+
+    var map = new THREE.TextureLoader().load( '../../textures/UV_Grid_Sm.jpg' );
+    map.wrapS = map.wrapT = THREE.RepeatWrapping;
+    map.anisotropy = 16;
+
+    material = new THREE.MeshPhongMaterial( { map: map, side: THREE.DoubleSide } );
+
+    mesh = new THREE.Mesh(geometry, material);
+    mesh.position.set(0,15,0);
+
+    scene.add(mesh);
+}
+
+        </script>
+    </body>
+</html>

@@ -1,0 +1,105 @@
+<html>
+    <head>
+        <script src="three.js"></script>
+    </head>
+    <body>
+        <canvas id="c"></canvas>
+        <script>
+
+            var renderer;
+            var camera;
+            var scene;
+
+            var light;
+            var light1;
+
+            var geometry;
+            var material;
+            var mesh;
+            var mesh2;
+
+
+            function initRender(){
+
+                renderer = new THREE.WebGLRenderer({canvas:document.getElementById("c"), antialias:true});
+                renderer.setClearColor(0x000000);
+                renderer.setPixelRatio(window.devicePixelRatio);
+                renderer.setSize(window.innerWidth, window.innerHeight);
+
+
+            }
+
+            function initCamera(){
+
+                camera = new THREE.OrthographicCamera( window.innerWidth / - 2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / - 2, 0.1, 5000 );
+                // camera.position.x = 0;
+                // camera.position.y = 0;
+                // camera.position.z = 600;
+                // camera.up.x = 0;
+                // camera.up.y = 1;
+                // camera.up.z = 0;
+                // camera.lookAt({
+                //     x : 0,
+                //     y : 0,
+                //     z : 0
+                // });
+            }
+
+            function initScene(){
+                scene = new THREE.Scene();
+            }
+
+            function initLight(){
+
+                light = new THREE.AmbientLight(0xffffff, 0.5);
+                scene.add(light);
+
+                light1 = new THREE.PointLight(0xffffff, 0.5);
+                scene.add(light1);
+            }
+
+            function initGeometry(){
+
+                geometry = new THREE.CubeGeometry(100,100,100);
+
+                material = new THREE.MeshLambertMaterial({color: 0xF3FFE2});
+                mesh = new THREE.Mesh(geometry, material);
+                mesh.position.set(0,0,-800);
+
+                scene.add(mesh);
+
+                geometry = new THREE.CubeGeometry(100,100,100);
+
+                material = new THREE.MeshLambertMaterial({color: 0xF3FFE2});
+                mesh2 = new THREE.Mesh(geometry, material);
+                mesh2.position.set(0,150,-800);
+
+                scene.add(mesh2);
+
+            }
+
+            function init(){
+                initRender();
+                initCamera();
+                initScene();
+                initLight();
+                initGeometry();
+            }
+            
+            init();
+
+            requestAnimationFrame(render);
+
+            function render(){
+                mesh.rotation.x += 0.01;
+                mesh.rotation.y += 0.01;
+                mesh2.rotation.x += 0.01;
+                mesh2.rotation.y += 0.01;
+                renderer.render(scene, camera);
+
+                requestAnimationFrame(render);
+            }
+
+        </script>
+    </body>
+</html>

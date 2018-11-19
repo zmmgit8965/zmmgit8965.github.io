@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>xxx</title>
+    <script src="../../../js/importHTML.js"></script>
+</head>
+<body>
+    <script src="../../../js/globleBase.js"></script>
+    <div>111111</div>
+    <div importHTML="imported.html">
+    </div>
+    <div>222222</div>
+    <div importHTML="imported.html">
+    </div>
+    <div>333</div>
+    <div syncImportHTML="imported.html">
+    </div>
+    <div>444</div>
+    <script>syncDcoumentWriteHTML("imported.html");</script>
+
+</body>
+</html>

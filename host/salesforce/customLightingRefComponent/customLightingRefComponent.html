@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>home</title>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <style>
+        textarea{
+            width:100%;
+            height:600px;
+        }
+    </style>
+</head>
+<body>
+    <script src="../../js/globleBase.js"></script>
+    <p>Test_CustomRefList.cmp</p>
+    <textarea><aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global"
+        controller="Test_CustomRefListCtrl">
+
+<aura:attribute name="Parent" type="String" />
+<aura:attribute name="Layout" type="String" />
+<aura:attribute name="DisplyType" type="String" />
+
+<aura:attribute name="objLabel" type="String" />
+<aura:attribute name="listCount" type="String" />
+
+
+<aura:attribute name="listData" type="Object" />
+<aura:attribute name="listColumn" type="List" />
+<aura:attribute name="listApiName" type="List" />
+<aura:attribute name="listTitleLabel" type="Object" />
+
+
+<aura:attribute name="allDataLink" type="String" />
+
+<aura:handler name="init" value="{!this}" action="{!c.doInit }"/>
+<div class="row region-subheader">
+<div class="flexipageComponent" data-aura-class="flexipageComponent">
+<div class="container forceRelatedListSingleContainer" data-aura-class="forceRelatedListSingleContainer">
+    <article class="slds-card slds-card_boundary forceRelatedListCardDesktop" data-aura-class="forceRelatedListCardDesktop">
+        
+        
+        
+        
+        
+
+<div class="slds-card__header slds-grid">
+<header class="slds-media slds-media--center slds-has-flexi-truncate">
+<div class="slds-media__figure">
+    <div class="extraSmall forceEntityIcon" style="background-color: #618fd8;color:white;text-align:center;" data-aura-class="forceEntityIcon">
+        <span class="uiImage" data-aura-class="uiImage" style="padding-top:3px;">
+            Ref
+        </span>
+    </div>
+</div>
+<div class="slds-media__body">
+    <h2 id="header_5:379;a">
+        <a class="slds-card__header-link baseCard__header-title-container" href="{!v.allDataLink}">
+            <span class="slds-text-heading--small slds-truncate slds-m-right--xx-small" title="{!v.objLabel}">{!v.objLabel}</span>
+            <span class="slds-text-heading--small slds-shrink-none slds-m-right--xx-small" > ({!v.listCount})</span>
+        </a>
+    </h2>
+</div>
+</header>
+</div>
+        
+        
+<div>
+<aura:if isTrue="{!v.DisplyType == 'リスト'}">
+<lightning:datatable
+        keyField="id"
+        data="{! v.listData }"
+        columns="{! v.listColumn }"
+        hideCheckboxColumn="true"
+        onrowaction="{! c.handleRowAction }"/>
+</aura:if>
+<aura:if isTrue="{!v.DisplyType == 'タイル'}">
+<div style="padding-left:13.5px;padding-right:13.5px;">
+    <div aura:id="recordView"></div>
+    
+    <aura:iteration items="{!v.listData}" var="d">
+        
+        <div style="text-align:right;right:70px;position:absolute;">
+            <lightning:buttonMenu aura:id="menu" onselect="{! c.handleSelect }" alternativeText="Show menu">
+                <lightning:menuItem value="{! 'Edit_' + d.Id}" label="編集" />
+                <lightning:menuItem value="{! 'Delete_' + d.Id}" label="削除" />
+            </lightning:buttonMenu>
+        </div>
+        <lightning:tile label="{!d.Name}" href="/">
+            <table>
+                <aura:iteration items="{!v.listApiName}" var="c">
+                    <aura:if isTrue="{!c != 'Name'}">
+                        <tr>
+                            <td>
+                                <c:Test_PropertyValue objectValue="{!v.listTitleLabel}" fieldName="{!c}" />：
+                            </td>
+                            <td>
+                                <c:Test_PropertyValue objectValue="{!d}" fieldName="{!c}" />
+                            </td>
+                        </tr>
+                    </aura:if>
+                </aura:iteration>
+            </table>
+        </lightning:tile>
+        
+    </aura:iteration>
+    
+</div>
+</aura:if>
+
+</div>           
+        
+        
+        <a  href="{!v.allDataLink}">
+            <div class="slds-card__footer" >
+                <span class="view-all-label" >すべて表示
+                    <span class="assistiveText" ></span>
+                </span>
+            </div>
+        </a>
+    </article>
+</div>
+</div>
+</div>
+
+
+<div style="background:white;" class="forceRelatedListPreviewGrid forceBaseListView">
+</div>
+</aura:component>
+    </textarea>
+    <p>Test_CustomRefListController.js</p>
+    <textarea>({
+        doInit : function(cmp, event, helper) {
+            
+            var ref = cmp.get("v.Parent");
+            var rId = cmp.get("v.recordId");
+            var layout = cmp.get("v.Layout");
+    
+            var action = cmp.get("c.getRecords");
+            
+            action.setParams({recordId:rId, refPath : ref, layout: layout});
+            action.setCallback(this, function(response) {
+                var state = response.getState();
+                if (state === "SUCCESS") { 
+                    var r = response.getReturnValue();
+                    var result = JSON.parse(r);
+                    
+                    console.log(result);
+                    
+                    
+                    cmp.set('v.objLabel', result.objLabel);
+                    
+                    cmp.set('v.listCount', result.datas.length);
+                    
+                    var listApiName = [];
+                    var listTitleLabel = {};
+                    
+                    for(var i=0 ; i<result.fields.length ; i++){
+                        var field = result.fields[i];
+                        listApiName.push(field.name);
+                        listTitleLabel[field.name] = field.label;
+                        
+                        var cmpRoot = cmp;
+                    }
+                    cmp.set('v.listApiName', listApiName);
+                    cmp.set('v.listTitleLabel', listTitleLabel);
+                    
+                    
+                    var cls = [];
+                    for(var i=0 ; i<result.fields.length ; i++){
+                        var field = result.fields[i];
+                        cls.push({label: field.label, fieldName: field.name, type: field.fieldType});
+                    }
+                    
+                    var actions = [
+                        { label: '編集', name: 'PopupEdit' },
+                        { label: '削除', name: 'Delete' }
+                    ];
+                    
+                    cls.push({ type: 'action', typeAttributes: { rowActions: actions } });
+                    console.log(cls);
+                    cmp.set('v.listColumn', cls);
+                    cmp.set('v.listData', result.datas);
+                    
+                    var link = "https://xxx/lightning/r/" + rId + "/related/" + result.childRefName + "/view?0.source=alohaHeader";
+                    cmp.set('v.allDataLink', link);
+                    
+                }
+            });
+            $A.enqueueAction(action);
+            
+        },
+        handleRowAction: function (cmp, event, helper) {
+            var action = event.getParam('action');
+            var row = event.getParam('row');
+            switch (action.name) {
+                case 'PopupEdit':
+                    var editRecordEvent = $A.get("e.force:editRecord");
+                    editRecordEvent.setParams({"recordId":row.Id});
+                    editRecordEvent.fire();
+                    break;
+                case 'Delete':
+                    var editRecordEvent = $A.get("e.force:deleteRecord");
+                    editRecordEvent.setParams({"recordId":row.Id});
+                    editRecordEvent.fire();
+                    break;
+            }
+        },
+        handleSelect: function (cmp, event, helper) {
+            var v = event.getParam("value");
+            if(v.indexOf("Edit_") == 0){
+                var id = v.replace("Edit_","");
+                var editRecordEvent = $A.get("e.force:editRecord");
+                editRecordEvent.setParams({"recordId":id});
+                editRecordEvent.fire();
+            }else if(v.indexOf("Delete_") == 0){
+                var id = v.replace("Delete__","");
+                var editRecordEvent = $A.get("e.force:deleteRecord");
+                editRecordEvent.setParams({"recordId":id});
+                editRecordEvent.fire();            
+            }
+        },
+    })
+    </textarea>
+    <p>Test_CustomRefList.design</p>
+    <textarea><design:component>
+        <design:attribute name="Parent" label="親レコード-関連リスト" datasource="apex://Test_ParentRefPickList" />
+        <design:attribute name="Layout" label="レイアウト" datasource="apex://Test_LayoutRefPickList" />
+        <design:attribute name="DisplyType" label="関連リストの表示を変更" datasource="リスト,タイル" default="リスト" />
+    </design:component>
+    </textarea>
+    <p>Test_CustomRefListCtrl.apxc</p>
+    <textarea>public class Test_CustomRefListCtrl {
+
+        public class Field{
+            public String name{get;set;}
+            public String label{get;set;}
+            public String fieldType{get;set;}
+        }
+        
+        public class RefList{
+            public String objLabel{get;set;}
+            public String objApiName{get;set;}
+            public String childRefName{get;set;}
+            public Field[] fields{get;set;}
+            public List<Object> datas{get;set;}
+        }
+        
+        @AuraEnabled
+        public static String getRecords(String recordId, String refPath, String layout) {
+            
+            String[] refPaths = refPath.split('-');
+            
+            String refName = refPaths[0];
+            String childRefName = refPaths[1];
+            
+                
+            partnerSoapSforceCom.Soap soap = new partnerSoapSforceCom.Soap();
+            partnerSoapSforceCom.LoginResult loginResult = soap.login('', '');
+            
+            
+            String sessionId = loginResult.sessionId;
+            
+            SoapMetadataApi.MetadataApi metaApi = new SoapMetadataApi.MetadataApi();
+            SoapMetadataApi.SessionHeader_element header = new SoapMetadataApi.SessionHeader_element();
+            header.sessionId = loginResult.sessionId;
+            metaApi.endpoint_x = loginResult.metadataServerUrl;
+            metaApi.SessionHeader = header;
+            
+            System.debug(layout);
+            SoapMetadataApi.DescribeMetadataResult rr = metaApi.describeMetadata(21);
+            SoapMetadataApi.ReadResult readResult = metaApi.readMetadata('Layout', new String[]{layout});
+            SoapMetadataApi.Metadata[] ms = readResult.records;
+            
+            System.debug(ms);
+            
+            for(SoapMetadataApi.Metadata m : ms){
+                SoapMetadataApi.RelatedList[] rs = m.relatedLists;
+                
+                System.debug(rs);
+                for(SoapMetadataApi.RelatedList rl : rs){
+                    String relatedList = rl.relatedList;
+                    
+                    System.debug(relatedList + '===' + refName);
+                    if(relatedList == refName){
+                        
+                        String[] refs = relatedList.split('\\.');
+                        System.debug('size:' + refs.size());
+                        if(refs.size() > 1){
+                            String objName = refs[0];
+                            String itemName = refs[1];
+                            String[] fields = rl.fields;
+                            return JSON.serialize(searchRecords(recordId, objName, itemName, fields, childRefName));
+                        }
+                    }
+                }
+            }
+    
+            return null;
+        }
+        
+        public static RefList searchRecords(String recordId, String objName, String refFieldName, String[] fieldNames, String childRefName){
+            
+            
+            String soql = 'SELECT Id,' + String.join(fieldNames, ',') + ' FROM ' + objName + ' WHERE ' + refFieldName + ' = :recordId';
+            System.debug(soql);
+            List<Object> rs = Database.query(soql);
+            
+            SObjectType objToken = Schema.getGlobalDescribe().get(objName);
+            DescribeSObjectResult objDescribe = objToken.getDescribe();
+            
+            RefList l = new RefList();
+            l.fields = getItemLabel(objDescribe, fieldNames);
+            l.objLabel = objDescribe.getLabel();
+            l.objApiName = objName;
+            l.childRefName = childRefName;
+            l.datas = rs;
+    
+            System.debug(l);
+            return l;
+        }
+        
+        public static Field[] getItemLabel(DescribeSObjectResult objDescribe , String[] fieldNames){
+               List<Field> result = new List<Field>();
+            
+            Map<String, SObjectField> fields = objDescribe.fields.getMap(); 
+            
+            Set<String> fieldSet = fields.keySet();
+            
+            for(String fieldApiName : fieldNames){
+                String fieldLabel = null;
+                String fieldType = null;
+                for(String s:fieldSet)
+                {
+                    SObjectField fieldToken = fields.get(s);
+                    DescribeFieldResult field = fieldToken.getDescribe();
+                    if(fieldApiName == field.getName()){
+                        fieldLabel = field.getLabel();
+                        
+                        System.debug(field.getLabel() + ':' + field.getType());
+                        if(field.getType() == DisplayType.Integer){
+                            fieldType = 'number';
+                        }else if(field.getType() == DisplayType.Double){
+                            fieldType = 'number';
+                        }else{
+                            fieldType = 'text';
+                        }
+                        break;
+                    }
+                }
+                Field f = new Field();
+                if(fieldApiName == 'NAME'){
+                    f.name = 'Name';
+                }else{
+                    f.name = fieldApiName;
+                }
+                
+                if(fieldLabel!=null){
+                    f.label = fieldLabel;
+                }else{
+                    f.label = fieldApiName;
+                }
+                
+                f.fieldType = fieldType;
+                
+                result.add(f);
+            }
+            
+            return result;
+        }
+    }
+    </textarea>
+    <p>Test_ParentRefPickList.apxc</p>
+    <textarea>global class Test_ParentRefPickList extends VisualEditor.DynamicPickList {
+        VisualEditor.DesignTimePageContext context;
+   
+       global Test_ParentRefPickList(VisualEditor.DesignTimePageContext context) {
+          this.context = context;
+       }
+       
+       global override VisualEditor.DataRow getDefaultValue(){
+           return null;
+       }
+       global override VisualEditor.DynamicPickListRows getValues() {
+           
+           VisualEditor.DynamicPickListRows rows = new VisualEditor.DynamicPickListRows();
+           
+           List<String> names = new List<String>();
+           
+           Schema.DescribeSObjectResult a_desc = Schema.getGlobalDescribe().get(context.entityName).getDescribe(); //Opportunity.sObjectType.getDescribe(); 
+           
+           List<Schema.ChildRelationship> thisObjectChilds = a_desc.getChildRelationships();
+   
+           Integer i = 0;
+           for(Schema.ChildRelationship child:thisObjectChilds){
+               
+               Schema.DescribeFieldResult  f = child.getField().getDescribe();
+               
+               VisualEditor.DataRow row = new VisualEditor.DataRow('ページ明細 - ' + child.getChildSObject().getDescribe().getLabel(), 
+                                                                   child.getChildSObject().getDescribe().getName() + '.' + f.getName() + '-' + child.getRelationshipName());
+               rows.addRow(row);
+               
+               System.debug(child.getChildSObject().getDescribe().getName() + '.' + f.getName()  + '----' +  'ページ明細 - ' + child.getChildSObject().getDescribe().getLabel());
+               
+               i++;
+           }
+   
+           //Map<String, Schema.SObjectField> a_fields = a_desc.fields.getMap();
+           //
+           //for(Schema.sObjectField fld:a_fields.values()){
+           //	
+           //    Schema.DescribeFieldResult  f = fld.getDescribe();
+           //    
+           //    if(f.getType() == DisplayType.Reference){
+           //        
+           //		Schema.DescribeSObjectResult obj = f.getReferenceTo()[0].getDescribe(); 
+           //        
+           //        System.debug(' field: Opportunity.' + f.getName() + f.getLabel() + '   :' + obj.getName() + obj.getLabel());
+           //        
+           //        List<Schema.ChildRelationship> objectChilds = obj.getChildRelationships();
+           //
+           //        for(Schema.ChildRelationship child:objectChilds){
+           //            
+           //            Schema.DescribeFieldResult  child_f = child.getField().getDescribe();
+           //            
+           //            //if(child_f.getReferenceTo()[0].getDescribe().getName() != obj.getName()){
+           //            //    continue;
+           //            //}
+           //
+           //        	System.debug(' ed field: ' + child.getChildSObject().getDescribe().getName() + child.getChildSObject().getDescribe().getLabel() 
+           //                         + '.' + child_f.getName() + child_f.getLabel() + 
+           //                         ' :' + child_f.getReferenceTo()[0].getDescribe().getName() + child_f.getReferenceTo()[0].getDescribe().getLabel());
+           //
+           //            
+           //        	System.debug(f.getLabel() + ' - ' + child.getChildSObject().getDescribe().getLabel());
+           //
+           //            VisualEditor.DataRow row = new VisualEditor.DataRow(f.getLabel() + ' - ' + child.getChildSObject().getDescribe().getLabel(), f.getName() + ' - ' + child_f.getName());
+           //    		rows.addRow(row);
+           //        }
+           //            
+           //    }
+           //} 
+                   
+           return rows;
+       }
+   }
+    </textarea>
+    <p></p>
+    <textarea>
+    </textarea>
+    <p></p>
+    <textarea>
+    </textarea>
+    <p></p>
+    <textarea>
+    </textarea>
+    <p></p>
+    <textarea>
+    </textarea>
+    <p></p>
+    <textarea>
+    </textarea>
+</body>
+</html>

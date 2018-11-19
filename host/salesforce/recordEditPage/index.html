@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>home</title>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <style>
+        textarea{
+            width:100%;
+            height:600px;
+        }
+    </style>
+</head>
+<body>
+        <script src="../../js/globleBase.js"></script>
+<p>AccountEditCmp.cmp</p>
+        <textarea><aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" 
+            controller="AccountEditCtrl">
+
+<aura:registerEvent name="saveOver" type="c:SaveOverEvent"/>
+<aura:registerEvent name="cancel" type="c:CancelEvent"/>
+
+<aura:attribute name="obj" type="Account" />
+<aura:attribute name="showEdit" type="Boolean" default="true" />
+
+<aura:if isTrue="{!v.obj}">
+   
+   <ui:inputText label="取引先名" value="{!v.obj.Name}"/>
+   <ui:inputText label="取引先 電話" value="{!v.obj.Phone}"/>
+   <ui:inputText label="取引先 Fax" value="{!v.obj.Fax}"/>
+   <ui:inputText label="Web サイト" value="{!v.obj.Website}"/>
+   
+   <div class="btnDiv" style="padding-top:0;">
+       <lightning:button class="slds-m-top_small" label="保存" 
+                         onclick="{!c.save}"/>
+       <div style="display:inline-block;width:10px;"></div>
+       <lightning:button class="slds-m-top_small" label="キャンセル"
+                         onclick="{!c.cancel}"/>
+   </div>
+   
+</aura:if>
+</aura:component></textarea>
+
+<p>AccountEditCmpController.js</p>
+<textarea>({
+            save: function(component, event, helper) {
+                var saveAction = component.get("c.saveAcc");
+                var rowData = component.get("v.obj");
+                saveAction.setParams({"account":rowData});
+                
+                saveAction.setCallback(this, function(response) {
+                    var state = response.getState();
+                    if(state === "SUCCESS") {
+                        var compEvent = component.getEvent("saveOver");
+                        compEvent.fire();
+                    }
+                });
+                
+                $A.enqueueAction(saveAction);
+            },
+            cancel: function(component, event, helper) {
+                var compEvent = component.getEvent("cancel");
+                compEvent.fire();    	
+            }
+        })</textarea>
+        
+<p>AccountEditCmp.css</p>
+<textarea>.THIS {
+    background-color:white;
+    height:100%;
+    padding:15px;
+    
+}
+.THIS .btnDiv{
+    padding-top :5px;
+}</textarea>
+
+<p>AccountDemoCtrl.apex</p>
+<textarea>public class AccountDemoCtrl {
+
+    @AuraEnabled
+    public static List<Account> getAccounts() {
+        List<Account> accounts = [SELECT Id, Name, Phone, Fax, Website FROM Account];
+        return accounts;
+    }
+}</textarea>
+
+<p>AccountEditCmp.cmp</p>
+<textarea><aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" 
+    controller="AccountEditCtrl">
+
+<aura:registerEvent name="saveOver" type="c:SaveOverEvent"/>
+<aura:registerEvent name="cancel" type="c:CancelEvent"/>
+
+<aura:attribute name="obj" type="Account" />
+<aura:attribute name="showEdit" type="Boolean" default="true" />
+
+<aura:if isTrue="{!v.obj}">
+
+<ui:inputText label="取引先名" value="{!v.obj.Name}"/>
+<ui:inputText label="取引先 電話" value="{!v.obj.Phone}"/>
+<ui:inputText label="取引先 Fax" value="{!v.obj.Fax}"/>
+<ui:inputText label="Web サイト" value="{!v.obj.Website}"/>
+
+<div class="btnDiv" style="padding-top:0;">
+<lightning:button class="slds-m-top_small" label="保存" 
+                 onclick="{!c.save}"/>
+<div style="display:inline-block;width:10px;"></div>
+<lightning:button class="slds-m-top_small" label="キャンセル"
+                 onclick="{!c.cancel}"/>
+</div>
+
+</aura:if>
+</aura:component></textarea>
+
+<p>Test_RecordEdit.vfp</p>
+<textarea><apex:page controller="Test_RecordEditPageCtrl" >
+    <script>
+    function onSave(){
+        var editLabels = document.querySelectorAll(".editItem");
+        editLabels.forEach(editLabel => {
+            var labels = editLabel.innerHTML.split("~~~");
+            var apiName = labels[0].replace("\n","");
+            var editable = labels[1];
+            var editType = labels[2];
+            if(editable == "edit"){
+                var editTd = editLabel.parentNode.previousSibling;
+                if(editType == "REFERENCE"){
+                    var idInput = editTd.querySelectorAll('input[id$="_lkid]"');
+                    if(idInput.length > 0){
+                        console.log(idInput[0].value);
+                    }
+                }else if(editType=="BOOLEAN"){
+                    var value = editTd.childNodes[0].checked;
+                    console.log(value);
+                }else if(editType=="PICKLIST"){
+                    var value = editTd.childNodes[0].value;
+                    console.log(value);
+                }else if(editType=="DATETIME"){
+                    var value = editTd.childNodes[0].childNodes[0].value;
+                    console.log(value);
+                }else{
+                    var value = editTd.childNodes[0].value;
+                    console.log(value);
+                }
+            }
+        });
+        return false;
+    }
+    </script>
+    <apex:form >
+        <apex:pageBlock title="RecordEdit" mode="edit">
+            <apex:pageBlockButtons >
+                Id:<apex:inputText value="{!id}"/>
+                <apex:commandButton value="Edit" action="{!edit}" />
+                <apex:commandButton value="Save" action="{!save}" />
+                <apex:commandButton value="Copy" action="{!copy}" />
+            </apex:pageBlockButtons>
+            <apex:dynamicComponent componentValue="{!editPanel}" /> 
+        </apex:pageBlock>
+    </apex:form>
+</apex:page></textarea>
+
+<p>Test_RecordEdit.vfp</p>
+<textarea>public class Test_RecordEditPageCtrl {
+    public Id id{get;set;}
+    
+    public sObject r {get;set;}
+    public Boolean init {get;set;}
+    
+    public Test_RecordEditPageCtrl(){
+        
+        
+        init =false;
+    } 
+    
+    public Component.Apex.pageBlockSection getEditPanel(){
+        Component.Apex.pageBlockSection op = new Component.Apex.pageBlockSection();
+        op.columns = 2;
+        op.title='Record Data';
+        
+        if(init == true){
+            String objName = id.getSobjectType().getDescribe().getName();
+            DescribeSObjectResult so = Schema.getGlobalDescribe().get(objName).getDescribe();
+            Map<String, Schema.SObjectField> a_fields = so.fields.getMap();
+            
+            for(Schema.sObjectField fld:a_fields.values()){ 
+                DescribeFieldResult field = fld.getDescribe();
+                if(field.isUpdateable() == true && field.getName().indexOf('RecordType') == -1){
+                    Component.Apex.InputField inputField = new Component.Apex.InputField ();
+                    inputField.expressions.value='{!r.' + field.getName() + '}';
+                	op.childComponents.add(inputField);
+                        
+                    Component.Apex.OutputLabel apiName = new Component.Apex.OutputLabel();
+                    apiName.styleClass = 'editItem';
+                    apiName.value=field.getName() + '~~~edit~~~' + field.getType();
+                    op.childComponents.add(apiName);
+                }else{
+                    Component.Apex.OutputField inputField = new Component.Apex.OutputField ();
+                    inputField.expressions.value='{!r.' + field.getName() + '}';
+                	op.childComponents.add(inputField);
+                    
+                    Component.Apex.OutputLabel apiName = new Component.Apex.OutputLabel();
+                    apiName.styleClass = 'editItem';
+                    apiName.value=field.getName() + '~~~readonly~~~' + field.getType();
+                    op.childComponents.add(apiName);
+                }
+                
+            }
+            
+        }
+        return op;
+    }
+    
+    public void edit(){
+        List<String> fieldNames = new List<String>();
+        
+        String objName = id.getSobjectType().getDescribe().getName();
+        
+        DescribeSObjectResult so = Schema.getGlobalDescribe().get(objName).getDescribe();
+        Map<String, Schema.SObjectField> a_fields = so.fields.getMap();
+        
+        for(Schema.sObjectField fld:a_fields.values()){ 
+            DescribeFieldResult field = fld.getDescribe();
+            fieldNames.add(field.getName());
+        }
+        
+        String soql = 'SELECT ' + String.join(fieldNames,',') + ' FROM ' + objName + ' WHERE Id=\'' + this.id + '\'';
+        System.debug(soql);
+        try{
+        	r = DataBase.query(soql);
+        }catch(Exception e){
+        }
+        
+        init =true;
+    }
+    
+    public void save(){
+        upsert r;
+    }
+    
+    public void copy(){
+        r.Id = null;
+        insert r;
+        
+        id = r.Id;
+		edit();
+    }
+}</textarea>
+</body>
+</html>

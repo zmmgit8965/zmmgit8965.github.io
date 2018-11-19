@@ -1,0 +1,391 @@
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>simplistTemplate</title>
+  <script src="../../../js/vue.js"></script>
+  <script
+    src="https://code.jquery.com/jquery-3.3.1.js"
+    integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
+    crossorigin="anonymous"></script>
+  <style>
+        .treeRoot{
+            display:inline-block;
+            width:300px;
+            border:1px solid gray;
+        }
+        .treeRoot .treeNode{
+            padding:2px;
+            border-bottom:1px solid lightgray;
+            border-top:1px solid lightgray;
+        }
+        .treeRoot .treeNodeName{
+            display:inline-block;
+        }
+        /*
+        .treeRoot .treeNode:nth-child(odd){
+            background-color:linen;
+        }*/
+        .treeNode:hover{
+            background-color:lightgray;
+            cursor: pointer;
+        }
+        .treeRoot .treeNode.selectedNode{
+            background-color:lightseagreen;
+        }
+        .treeRoot .dragMoveOn{
+            color:red;
+        }
+        .treeRoot .dragMoveOn_Top{
+            border-top: 1px solid red;
+        }
+        .treeRoot .dragMoveOn_Bottom{
+            border-bottom: 1px solid red;
+        }
+        .dragTreeNodeDiv{
+            position: absolute;
+            border:1px solid black;
+        }
+        .noselect {
+            -webkit-touch-callout: none; /* iOS Safari */
+            -webkit-user-select: none; /* Safari */
+            -khtml-user-select: none; /* Konqueror HTML */
+            -moz-user-select: none; /* Firefox */
+            -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently supported by Chrome and Opera */
+        }
+  </style>
+</head>
+<body>
+  <script src="../../../js/globleBase.js"></script>
+  <div id="app" style="position: relative;">
+      <div class="treeRoot noselect">
+        <div>
+            <table style="width:100%;">
+                <tr>
+                    <td>Tree</td>
+                    <td style="width:150px;">
+                        <button v-on:click="addChild">+</button>
+                        <button v-on:click="collAll">CA</button>
+                        <button v-on:click="expendAll">EA</button>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div v-for="node in treeNodeList" v-bind:style="{paddingLeft: node.paddingLeft + 'px'}" v-bind:class="'treeNode' + (node.children.length == 0 ? ' leafNode':'') + (node.selected? ' selectedNode': '')" v-on:click="nodeClick(node)"
+            v-show="node.visible && node.isAllParentVisible()"
+            v-on:mousedown="treeNodeMouseDown(node)"
+            v-on:mouseover="treeNodeMouseOver(node)"
+            v-on:mouseleave="treeNodeMouseLeave(node)">
+            <span v-if="node.children.length == 0">：</span>
+            <span v-if="node.children.length != 0 && node.toggleFlg == true">▷</span>
+            <span v-if="node.children.length != 0 && node.toggleFlg == false">▼</span>
+            <div class="treeNodeName">
+                {{node.model.title}}
+            </div>
+        </div>
+      </div>
+  </div>
+
+  <script>
+    // base class overwrite
+    Array.prototype.insert = function ( index, item ) {
+        this.splice( index, 0, item );
+    };
+    Array.prototype.remove = function ( index ) {
+        this.splice(index, 1);
+    };
+    
+
+    // api base class
+
+    var TreeNode = function(config){
+        this.children = [];
+        this.parent = null;
+        this.toggleFlg = false;
+        this.visible = true;
+        this.selected = false;
+        if(config){
+            this.model = config;
+        }
+    }
+    TreeNode.selectedNode = null;
+    TreeNode.DragNode = null;
+    TreeNode.prototype.appendChild = function(node){
+        if(node.parent){
+            node.parent.children.remove(node.parent.children.indexOf(node));
+        }
+        this.children.push(node);
+        node.parent = this;
+    }
+    TreeNode.prototype.insertBefore = function(node){
+        if(node.parent){
+            node.parent.children.remove(node.parent.children.indexOf(node));
+        }
+        this.parent.children.insert(this.parent.children.indexOf(this), node);
+        node.parent = this.parent;
+    }
+    TreeNode.prototype.insertAfter = function(node){
+        if(node.parent){
+            node.parent.children.remove(node.parent.children.indexOf(node));
+        }
+        this.parent.children.insert(this.parent.children.indexOf(this) + 1, node);
+        node.parent = this.parent;
+    }
+    TreeNode.prototype.getAllGenerations = function(){
+        var result = [];
+        result.push(this);
+        this.getAllGenerationsLoop(result);
+        this.refreshLeftPadding();
+        return result;
+    }
+    TreeNode.prototype.getAllGenerationsLoop = function(list){
+        for(var i = 0 ; i<this.children.length ; i++){
+            list.push(this.children[i]);
+            this.children[i].getAllGenerationsLoop(list);
+        }
+    }
+    TreeNode.prototype.createChilds = function(model){
+        this.model = model;
+        this.createChildsLoop(model);
+        this.refreshLeftPadding();
+    }
+    TreeNode.prototype.createChildsLoop = function(model){
+        if(model.children){
+            for(var i=0 ; i<model.children.length ; i++){
+                var childModel = model.children[i];
+                var childTreeNode = new TreeNode(childModel);
+                this.appendChild(childTreeNode);
+                childTreeNode.createChildsLoop(childModel);   
+            }
+        }
+    }
+    TreeNode.prototype.getLastChild = function(){
+        if(this.children.length > 0){
+            return this.children[this.children.length - 1];
+        }else{
+            return null;
+        }
+    }
+    TreeNode.prototype.getNextNeighbor = function(){
+        var thisIndex = this.parent.children.indexOf(this);
+        if(thisIndex != -1 && thisIndex < (this.parent.children.length-1)){
+            return this.parent.children[thisIndex + 1];
+        }
+    }
+    TreeNode.prototype.refreshLeftPadding = function(){
+        var level = 1;
+        this.refreshLeftPaddingLoop(level);
+    }
+    TreeNode.prototype.refreshLeftPaddingLoop = function(level){
+        for (var i = 0; i < this.children.length; i++) {
+            var child = this.children[i];
+            child.paddingLeft = level * 12;
+            child.refreshLeftPaddingLoop(level + 1);
+        }
+    }
+    TreeNode.prototype.isAllParentVisible = function(){
+        var parentNode = this.parent;
+        while(parentNode){
+            if(parentNode.visible == false){
+                return false;
+            }
+            parentNode = parentNode.parent;
+        }
+        return true;
+    }
+    TreeNode.prototype.selectNode = function(){
+        if(TreeNode.selectedNode != null){
+            TreeNode.selectedNode.selected = false;
+        }
+        this.selected = true;
+        TreeNode.selectedNode = this;
+    }
+    TreeNode.prototype.click = function(){
+        if(TreeNode.selectedNode != null){
+            TreeNode.selectedNode.selected = false;
+        }
+        this.selected = true;
+        TreeNode.selectedNode = this;
+        this.toggle();
+    }
+    TreeNode.prototype.toggle = function(){
+        if(this.toggleFlg == false){
+            this.toggleFlg = true;
+            this.setAllChildHide();
+        }else{
+            this.toggleFlg = false;
+            this.setAllChildShow();
+        }
+
+    }
+    TreeNode.prototype.setAllChildShow = function(){
+        this.toggleFlg = false;
+        for (var i = 0; i < this.children.length; i++) {
+            var c = this.children[i];
+            c.visible = true;
+        }
+    }
+    TreeNode.prototype.setAllChildHide = function(){
+        this.toggleFlg = true;
+        for (var i = 0; i < this.children.length; i++) {
+            var c = this.children[i];
+            c.visible = false;
+        }
+    }
+    TreeNode.prototype.expendAll = function(){
+        this.setAllChildVisibleLoop(this, true);
+    }
+    TreeNode.prototype.collapseAll = function(){
+        this.setAllChildVisibleLoop(this, false);
+    }
+    TreeNode.prototype.setAllChildVisibleLoop = function(node , visible){
+        for (var i = 0; i < node.children.length; i++) {
+            var c = node.children[i];
+            c.visible = visible;
+            node.setAllChildVisibleLoop(c, visible);
+        }
+    }
+    TreeNode.prototype.startDrag = function(dragOverCallBack){
+
+        TreeNode.DragNode = this;
+
+        this.mouseDownPoint = {x:event.pageX, y:event.pageY};
+        var me = this;
+
+        var dragDiv = null;
+
+        var mouseMove = function(event){
+            if(dragDiv == null){
+                dragDiv = $("<div class='dragTreeNodeDiv'>");
+                dragDiv.html(me.model.title);
+                // dragDiv.offset({left:event.pageX + 20, top:event.pageY});
+                $(document.body).append(dragDiv);
+            }
+            dragDiv.offset({left:event.pageX + 20, top:event.pageY});
+            me.setAllChildHide();
+        }
+        $(document).on("mousemove", mouseMove);
+
+        var mouseUp = function(event){
+            
+            if(TreeNode.DragNodeMoveOn != null){
+                if(TreeNode.DragNodeMoveOn.dragPosition == "top"){
+                    TreeNode.DragNodeMoveOn.insertBefore(TreeNode.DragNode);
+                }else if(TreeNode.DragNodeMoveOn.dragPosition == "bottom"){
+                    TreeNode.DragNodeMoveOn.insertAfter(TreeNode.DragNode);
+                }else{
+                    TreeNode.DragNodeMoveOn.appendChild(TreeNode.DragNode);
+                }
+            }
+
+            $(document).off("mousemove", mouseMove);
+            $(document).off("mouseup", mouseUp);
+            if(dragDiv != null){
+                dragDiv.remove();
+                    
+                if(dragOverCallBack){
+                    dragOverCallBack();
+                }
+            }
+            TreeNode.DragNode = null;
+            TreeNode.DragNodeMoveOn = null;
+        }
+        $(document).on("mouseup", mouseUp);
+    }
+    TreeNode.prototype.mouseOver = function(){
+        if(TreeNode.DragNode == null){
+            return;
+        }
+        if(TreeNode.DragNode == this){
+            return;
+        }
+        console.log(event.offsetY);
+        TreeNode.DragNodeMoveOn = this;
+        $(event.currentTarget).addClass("dragMoveOn");
+        this.mouseMoveFun = function(){
+            console.log(event.offsetY);
+            var height = $(event.currentTarget).height();
+            TreeNode.DragNodeMoveOn.dragPosition = null;
+            $(event.currentTarget).removeClass("dragMoveOn_Top");
+            $(event.currentTarget).removeClass("dragMoveOn_Bottom");
+            if(event.offsetY < (height/4)){
+                $(event.currentTarget).addClass("dragMoveOn_Top");
+                TreeNode.DragNodeMoveOn.dragPosition = "top";
+            }else if(event.offsetY > (height/4 * 3)){
+                $(event.currentTarget).addClass("dragMoveOn_Bottom");
+                TreeNode.DragNodeMoveOn.dragPosition = "bottom";
+            }
+        }
+        $(event.currentTarget).on("mousemove", this.mouseMoveFun);
+    }
+    
+    TreeNode.prototype.mouseLeave = function(){
+        if(TreeNode.DragNodeMoveOn == this){
+            TreeNode.DragNodeMoveOn.dragPosition = null;
+            TreeNode.DragNodeMoveOn = null;
+        }
+        $(event.currentTarget).removeClass("dragMoveOn");
+        $(event.currentTarget).removeClass("dragMoveOn_Top");
+        $(event.currentTarget).removeClass("dragMoveOn_Bottom");
+        $(event.currentTarget).off("mousemove", this.mouseMoveFun);
+    }
+
+    // app date
+
+    var rootNode = new TreeNode();
+    rootNode.createChilds(
+        {title:"root", children:[
+                        {title:"c1", children:[{title:"c11", children:[{title:"c111"}]},{title:"c12"}]},
+                        {title:"c2", children:[{title:"c21"}]},
+                        {title:"c3", children:[{title:"c31"},{title:"c32"}]},
+                    ]});
+    rootNode.selectNode();
+
+    console.log(rootNode);
+    console.log(rootNode.getAllGenerations());
+
+    // api source
+
+    var v = new Vue({
+      el: '#app',
+      data: {treeNodeList:rootNode.getAllGenerations(), rootNode: rootNode},
+      methods: {
+        nodeClick : function(node){
+            node.click();
+        },
+        collAll : function(node){
+            rootNode.collapseAll();
+        },
+        expendAll : function(node){
+            rootNode.expendAll();
+        },
+        addChild : function(){
+            var tn = new TreeNode({title:"new"});
+            TreeNode.selectedNode.appendChild(tn);
+            var lastChild = TreeNode.selectedNode.getLastChild();
+            var lastChildIndex = this.treeNodeList.indexOf(lastChild);
+            this.treeNodeList = this.rootNode.getAllGenerations();
+        },
+        treeNodeMouseDown : function(node){
+            me = this;
+            node.startDrag(function(){
+                me.treeNodeList = this.rootNode.getAllGenerations();
+            });
+        },
+        treeNodeMouseOver : function(node){
+            node.mouseOver();
+        },
+        treeNodeMouseLeave : function(node){
+            node.mouseLeave();
+        }
+      }
+    });
+
+
+
+
+      var taskList = ["ページ1設計","ページ2設計","ページ1開発","ページ2開発","ページ1テスト","ページ2テスト"];
+  </script>
+</body>
+</html>

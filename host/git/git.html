@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>home</title>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <script src="../../js/globleBase.js"></script>
+</head>
+<body>
+    <div class="w3-container">
+        <div class="w3-panel w3-pale-blue w3-leftbar w3-rightbar w3-border-blue">
+            <h2>VUE Examples</h2>
+        </div>
+        <ul class="w3-ul w3-border">
+            <li>
+                <p>Clone a repository</p>
+                git clone git@github.com:<your github account>/afraid-to-commit.git
+            </li>
+            <li>
+                <a href="https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging">https://git-scm.com/book/en/v2/Git-Branching-Basic-Branching-and-Merging</a>
+            </li>
+            <li>
+                <p>Commit your changes</p>
+                git commit -m "added my github name"
+            </li>
+            <li>
+                <p> Push your changes to GitHub</p>
+                git push origin master
+                <br />
+                git push https://username:password@myrepository.biz/file.git --all
+                
+            </li>
+            <li>
+                <p>pull data</p>
+                <pre>
+                    git pull origin master
+                </pre>
+            </li>
+           <li>
+               <p>Push bat</p>
+               <pre>
+                    git add *
+                    git commit -m "t"
+                    git push origin master
+                    
+                    pause
+               </pre>
+           </li>
+            <li>
+                <pre>
+$ git status
+# On branch amend-my-name
+# Changes not staged for commit:
+#   (use "git add <file>..." to update what will be committed)
+#   (use "git checkout -- <file>..." to discard changes in working directory)
+#
+#   modified:   attendees_and_learners.rst
+#
+no changes added to commit (use "git add" and/or "git commit -a")
+
+                </pre>
+                <pre>
+                        What this is telling us:
+
+                        we’re on the amend-my-name branch
+                        that we have one modified file
+                        that there’s nothing to commit
+
+                </pre>
+                    
+                    <br/>
+            </li>
+        </ul>
+    </div>
+</body>
+</html>

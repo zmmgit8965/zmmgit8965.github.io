@@ -1,0 +1,47 @@
+
+.treeRoot{
+    display:inline-block;
+    width:300px;
+    border:1px solid gray;
+    box-shadow: 
+}
+.treeRoot .treeTitle{
+    background-color: #4875BB;
+    color: white;
+}
+.treeRoot .treeNode{
+    padding:2px;
+    border-bottom:1px solid lightgray;
+    border-top:1px solid lightgray;
+}
+.treeRoot .treeNodeName{
+    display:inline-block;
+}
+.treeNode:hover{
+    background-color:#C6D9F6;
+    cursor: pointer;
+}
+.treeRoot .treeNode.selectedNode{
+    background-color:#94B4E6;
+}
+.treeRoot .dragMoveOn{
+    color:red;
+}
+.treeRoot .dragMoveOn_Top{
+    border-top: 1px solid red;
+}
+.treeRoot .dragMoveOn_Bottom{
+    border-bottom: 1px solid red;
+}
+.dragTreeNodeDiv{
+    position: absolute;
+    border:1px solid black;
+}
+.treeRoot.noselect {
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none; /* Non-prefixed version, currently supported by Chrome and Opera */
+}

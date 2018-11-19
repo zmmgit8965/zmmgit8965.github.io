@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>home</title>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+</head>
+<body>
+    <textarea style="width:100%;height:600px;">
+            package com.example.fourm.testhttp;
+
+            import android.graphics.Color;
+            import android.support.constraint.ConstraintLayout;
+            import android.support.v7.app.AppCompatActivity;
+            import android.os.Bundle;
+            import android.view.View;
+            import android.widget.Button;
+            import android.widget.LinearLayout;
+            import android.widget.TextView;
+            
+            import org.apache.http.HttpResponse;
+            import org.apache.http.HttpStatus;
+            import org.apache.http.NameValuePair;
+            import org.apache.http.StatusLine;
+            import org.apache.http.client.HttpClient;
+            import org.apache.http.client.entity.UrlEncodedFormEntity;
+            import org.apache.http.client.methods.HttpGet;
+            import org.apache.http.client.methods.HttpPost;
+            import org.apache.http.impl.client.DefaultHttpClient;
+            import org.apache.http.message.BasicNameValuePair;
+            import org.json.JSONObject;
+            
+            import java.io.ByteArrayOutputStream;
+            import java.io.IOException;
+            import java.util.ArrayList;
+            import java.util.List;
+            
+            public class MainActivity extends AppCompatActivity {
+            
+            
+                @Override
+                protected void onCreate(Bundle savedInstanceState) {
+                    super.onCreate(savedInstanceState);
+                    setContentView(R.layout.activity_main);
+            
+            
+                    Button clickButton = (Button) findViewById(R.id.btn);
+                    clickButton.setOnClickListener( new View.OnClickListener() {
+            
+                        @Override
+                        public void onClick(View v) {
+            
+                            ExecThread thread = new ExecThread();
+                            thread.view = v;
+                            thread.start();
+            
+                        }
+                    });
+            
+            
+                    //new GetUrlContentTask().execute();
+                }
+            }
+
+            
+
+            package com.example.fourm.testhttp;
+
+import android.graphics.Color;
+import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.NameValuePair;
+import org.apache.http.StatusLine;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.json.JSONObject;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+public class ExecThread extends Thread {
+
+    public View view;
+
+    @Override
+    public void run(){
+        try  {
+            String LoginUrl = "https://login.salesforce.com/services/oauth2/token";
+            LoginUrl += "?grant_type=password";
+
+            LoginUrl += "&client_id=3MVG9YDQS5WtC11qjSWvUz6NOzBunszGJC.VvdqCxkUyGYsTAmwUB_R33nZvyba5IePe2.UShom.ptdH0mxpo";
+
+            LoginUrl += "&client_secret=2503084973416815406";
+
+            LoginUrl += "&username=fff8965@triosys.com";
+
+            LoginUrl += "&password=zmm@8965";
+
+
+
+            HttpClient httpclient = new DefaultHttpClient();
+            HttpPost p = new HttpPost(LoginUrl);
+            List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
+            nameValuePairs.add(new BasicNameValuePair("grant_typ","password"));
+            nameValuePairs.add(new BasicNameValuePair("client_id","3MVG9YDQS5WtC11qjSWvUz6NOzBunszGJC.VvdqCxkUyGYsTAmwUB_R33nZvyba5IePe2.UShom.ptdH0mxpo"));
+            nameValuePairs.add(new BasicNameValuePair("client_secret","2503084973416815406"));
+            nameValuePairs.add(new BasicNameValuePair("username","fff8965@triosys.com"));
+            nameValuePairs.add(new BasicNameValuePair("password","zmm@8965"));
+            p.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+
+            HttpResponse response = httpclient.execute(p);
+            StatusLine statusLine = response.getStatusLine();
+            if (statusLine.getStatusCode() == HttpStatus.SC_OK) {
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                response.getEntity().writeTo(out);
+                String responseString = out.toString();
+
+
+                JSONObject loginObj = new JSONObject(responseString);
+
+                String url = loginObj.getString("instance_url") + "/services/data/v20.0/query/?q=SELECT+pppp12345__Value__c+from+pppp12345__Color__c";
+                httpclient = new DefaultHttpClient();
+                HttpGet get = new HttpGet(url);
+                get.addHeader("Authorization", loginObj.get("token_type") + " " + loginObj.get("access_token"));
+                response = httpclient.execute(get);
+                statusLine = response.getStatusLine();
+                if (statusLine.getStatusCode() == HttpStatus.SC_OK) {
+                    out = new ByteArrayOutputStream();
+                    response.getEntity().writeTo(out);
+                    responseString = out.toString();
+                    JSONObject result = new JSONObject(responseString);
+
+                    LinearLayout root=(LinearLayout)view.getRootView().findViewById(R.id.root);
+
+                    String findString = "\"pppp12345__Value__c\":\"";
+                    int colorStartIndex = responseString.indexOf(findString) + findString.length();
+                    int colorEndIndex = responseString.indexOf("\"", colorStartIndex + 1);
+                    String color = responseString.substring(colorStartIndex, colorEndIndex);
+                    root.setBackgroundColor(Color.parseColor(color));
+
+                    TextView tv=(TextView)view.getRootView().findViewById(R.id.tv);
+
+                    tv.setText(responseString);
+
+                    root.invalidate();
+                }
+
+                //tv1.setText( color);
+                out.close();
+                //..more logic
+            } else {
+                //Closes the connection.
+                response.getEntity().getContent().close();
+                throw new IOException(statusLine.getReasonPhrase());
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+
+
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+    <LinearLayout
+        android:id="@+id/root"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="GetData"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+        <TextView
+            android:id="@+id/tv"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </LinearLayout>
+
+</android.support.constraint.ConstraintLayout>
+    </textarea>
+        <script src="../../js/globleBase.js"></script>
+</body>
+</html>

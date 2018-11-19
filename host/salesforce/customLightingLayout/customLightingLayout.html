@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>home</title>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <style>
+        textarea{
+            width:100%;
+            height:600px;
+        }
+    </style>
+</head>
+<body>
+    <script src="../../js/globleBase.js"></script>
+    <p>apex Test_MetaSOAPCtrl</p>
+    <textarea>
+            public class Test_MetaSOAPCtrl {
+                public Test_MetaSOAPCtrl(){
+                }
+                
+                @AuraEnabled
+                public static List<String> getLayouts(String objectApiName) {
+                    List<String> layoutNames ;
+                    partnerSoapSforceComP.Soap p = new partnerSoapSforceComP.Soap();
+                    partnerSoapSforceComP.LoginResult result = p.login('username','pass');
+                    
+                    partnerSoapSforceComP.SessionHeader_element sh = new partnerSoapSforceComP.SessionHeader_element();
+                    sh.sessionId = result.sessionId;
+                    p.SessionHeader = sh;
+                    p.endpoint_x = result.serverUrl;
+                    
+                    partnerSoapSforceComP.DescribeLayoutResult dlr = p.describeLayout(objectApiName,null,null);
+            
+                    List<String> ids = new List<String>();
+                    for(partnerSoapSforceComP.DescribeLayout layout : dlr.layouts){
+                        ids.add(layout.Id);
+                    }
+                    
+                    toolingSoapSforceCom.SforceService ss = new toolingSoapSforceCom.SforceService();
+                    toolingSoapSforceCom.LoginResult loginResult = ss.login('username','pass');
+                    
+                    toolingSoapSforceCom.SessionHeader_element sHeader = new toolingSoapSforceCom.SessionHeader_element();
+                    sHeader.sessionId = loginResult.sessionId;
+                    ss.SessionHeader = sHeader;
+                    ss.endpoint_x = loginResult.serverUrl;
+                    
+                    layoutNames = new List<String>();
+                    
+                    toolingSoapSforceCom.QueryResult qr = ss.query('SELECT Id,Name FROM Layout WHERE Id IN (\'' + String.join(ids, '\',\'') + '\')');
+                    for(sobjectToolingSoapSforceCom.sObject_x o : qr.records){
+                        layoutNames.add(o.Name);
+                    }
+                    
+                    System.debug(layoutNames);
+                    
+                    return layoutNames;
+                }
+                
+                @AuraEnabled
+                public static void save(TestObject__c record) {
+                    update record;
+                }
+                
+                class LayoutItem{
+                    public String label{get;set;}
+                    public String apiName{get;set;}
+                }
+                
+                class LayoutSection{
+                    public String title{get;set;}
+                    public Integer colCount{get;set;}
+                    List<LayoutSectionRow> rows{get;set;}
+                }
+                
+                class LayoutSectionRow{
+                    List<LayoutItem> items{get;set;}
+                }
+                
+                @AuraEnabled
+                public static String getLayoutInfos(String layoutId, String recordId) {
+                    partnerSoapSforceComP.Soap p = new partnerSoapSforceComP.Soap();
+                    partnerSoapSforceComP.LoginResult loginResult = p.login('username','pass');
+                    
+                    partnerSoapSforceComP.SessionHeader_element sh = new partnerSoapSforceComP.SessionHeader_element();
+                    sh.sessionId = loginResult.sessionId;
+                    p.SessionHeader = sh;
+                    p.endpoint_x = loginResult.serverUrl;
+                    
+                    partnerSoapSforceComP.DescribeLayoutResult dlr0 = p.describeLayout('TestObject__c',null,null);
+            
+                    List<LayoutSection> result = new List<LayoutSection>();
+                    
+                    for(partnerSoapSforceComP.DescribeLayout layout : dlr0.layouts){
+                        
+                        if(layout.Id != layoutId){
+                            continue;
+                        }
+                        
+                        for(partnerSoapSforceComP.DescribeLayoutSection dls : layout.detailLayoutSections){
+                            System.debug('dls:' + dls);
+                        
+                            LayoutSection section = new LayoutSection();
+                            section.title = dls.heading;
+                            section.colCount = dls.columns;
+                            section.rows = new List<LayoutSectionRow>();
+                            
+                            for(partnerSoapSforceComP.DescribeLayoutRow dlr : dls.layoutRows){
+                                
+                                   LayoutSectionRow layoutRow = new LayoutSectionRow();
+                                layoutRow.items = new List<LayoutItem>();
+                                
+                                for(partnerSoapSforceComP.DescribeLayoutItem dli : dlr.layoutItems){
+                                    
+                                    if(dli.layoutComponents != null){
+                                        for(partnerSoapSforceComP.DescribeLayoutComponent dlc : dli.layoutComponents)
+                                        {
+                                            if(String.isEmpty(dlc.value) || dlc.value == ', ')
+                                            {
+                                                continue;
+                                            }
+            
+                                            LayoutItem item = new LayoutItem();
+                                            item.label = dli.label;
+                                            item.apiName = dlc.value;
+                                            layoutRow.items.add(item);
+                                            
+                                            
+                                            //List<string> lii = new List<string>();
+                                            
+                                            //lii.add(dli.label);
+                                            //lii.add(dlc.value);
+                                            //result.add(lii);
+                                            
+                                            System.debug(dli.label + ' : ' + dlc.value);
+                                            
+                                            break;
+                                        }
+                                    }
+                                }
+                                
+                                section.rows.add(layoutRow);
+                            }
+                            
+                            result.add(section);
+                        }
+                    }
+                    System.debug('result:' + result);
+                    
+                    return JSON.serialize(result);
+                }
+                
+                @AuraEnabled
+                public static TestObject__c getRecord(String recordId) {
+                    
+                    Map<String,String> fieldNameMap = new Map<String,String>();
+                    
+                    Map<String, Schema.SObjectField> fieldMap = Schema.SObjectType.TestObject__c.fields.getMap();
+                    List<Schema.SObjectField> fields = fieldMap.values();
+                    
+                    for(Schema.SObjectField f : fields){
+                        fieldNameMap.put(f.getDescribe().getName(), f.getDescribe().getLabel());
+                    }
+                    
+                    String fieldStr = String.join(new List<String>(fieldNameMap.keySet() ), ',');
+                    System.debug('fieldStr: ' + fieldStr);
+                    System.debug('fieldLabels: ' + fieldNameMap.values());
+                    
+                    String soql = 'SELECT ' + fieldStr + ' FROM TestObject__c WHERE Id = :recordId';
+                    TestObject__c to = Database.query(soql);
+                    return to;
+                }
+            }
+    </textarea>
+    <p>apex LayoutPickList</p>
+    <textarea>
+        global class LayoutPickList extends VisualEditor.DynamicPickList{
+    
+            global override VisualEditor.DataRow getDefaultValue(){
+                VisualEditor.DataRow defaultValue = new VisualEditor.DataRow('1111', '1111');
+                return defaultValue;
+            }
+            global override VisualEditor.DynamicPickListRows getValues() {
+                
+                VisualEditor.DataRow value1 = new VisualEditor.DataRow('テストオブジェクトレイアウト', '00hp0000000RK1AAAW');
+                VisualEditor.DataRow value2 = new VisualEditor.DataRow('layout1', '00hp0000000RK1FAAW');
+                VisualEditor.DataRow value3 = new VisualEditor.DataRow('l2', '00hp0000000RK2hAAG');
+                VisualEditor.DynamicPickListRows  myValues = new VisualEditor.DynamicPickListRows();
+                myValues.addRow(value1);
+                myValues.addRow(value2);
+                myValues.addRow(value3);
+                
+                return myValues;
+            }
+        }
+    </textarea>
+    <p>component</p>
+    <textarea>
+        <aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" 
+        controller="Test_MetaSOAPCtrl">
+
+<aura:attribute name="record" type="TestObject__c" default="{ 'sobjectType': 'TestObject__c' }"/>
+<aura:attribute name="simpleRecord" type="Object"/>
+<aura:attribute name="recordError" type="String"/>
+
+
+<aura:handler name="init" value="{!this}" action="{!c.doInit }"/>
+<aura:attribute name="Layout" type="String" />
+
+<div style="background:white;padding:20px;">
+レコードId:{!v.recordId}<br />
+レイアウトId：{!v.Layout}
+<br />
+<br />
+<div aura:id="rootDiv">
+</div>
+<div style="clear:both;paddind:10px;">
+    <lightning:button class="slds-m-top_small" label="保存" 
+                      onclick="{!c.saveRecord}"/>
+</div>
+</div>
+</aura:component>
+    </textarea>
+    <p>controller</p>
+    <textarea>
+        ({
+            doInit : function(cmp, event, helper) {
+                   
+                var rId = cmp.get("v.recordId");
+                
+                
+                var action = cmp.get("c.getLayoutInfos");
+                
+                action.setParams({ layoutId : cmp.get("v.Layout"), recordId : rId});
+                action.setCallback(this, function(response) {
+                    var state = response.getState();
+                    if (state === "SUCCESS") { 
+                        var r = response.getReturnValue();
+                        r = JSON.parse(r);
+                        var cmpRoot = cmp;
+                        for(var i=0 ; i<r.length ;i++){
+                            var section = r[i];
+                            
+                            helper.createComponent("div",{class:"sectionTitle"},cmpRoot.find("rootDiv"),
+                                                   function(newCmp){
+                                                       helper.createComponent("ui:outputText",{value:section.title},newCmp,function(){});
+                                                   }
+                                                  );
+                            
+                            if(section.colCount == 1){
+                                    
+                                for(var rowNo=0 ; rowNo<section.rows.length ; rowNo++){
+                                    var row = r[i].rows[rowNo];
+                                    
+                                    for(var itemNo=0 ; itemNo<row.items.length; itemNo++){
+                                        var item = row.items[itemNo];
+                                        
+                                        helper.createComponent("ui:inputText",{label:item.label, "value":cmp.getReference("v.record." + item.apiName)},cmpRoot.find("c1Div"),
+                                                           function(newCmp){
+                                                           }
+                                                          );
+                                        
+                                        
+                                    }
+                                    
+                                }
+                                
+                            }else if(section.colCount == 2){
+                                                        
+                                for(var rowNo=0 ; rowNo<section.rows.length ; rowNo++){
+                                    var row = r[i].rows[rowNo];
+                                    
+                                    helper.createComponent("div",{class:"sectionRow"},cmpRoot.find("rootDiv"),
+                                        function(newCmp){
+                                            var rowCmp = newCmp;
+                                            for(var itemNo=0 ; itemNo<row.items.length; itemNo++){
+                                                var item = row.items[itemNo];
+                                                helper.createComponent("ui:inputText",{label:item.label, "value":cmp.getReference("v.record." + item.apiName)},rowCmp,
+                                                    function(newCmp){
+                                                    }
+                                                );
+                                            }
+                                        }
+                                    );
+                                    
+                                }
+                            }
+                        }
+                    }
+                });
+                $A.enqueueAction(action);
+                
+                
+                var action2 = cmp.get("c.getRecord");
+                
+                action2.setParams({ recordId : rId});
+                action2.setCallback(this, function(response) {
+                    var state = response.getState();
+                    if (state === "SUCCESS") { 
+                        var r = response.getReturnValue();
+                        cmp.set('v.record', r);
+                    }
+                });
+                $A.enqueueAction(action2);        
+            },
+            saveRecord: function(component, event, helper) {
+                var saveAction = component.get("c.save");
+                var rowData = component.get("v.record");
+                saveAction.setParams({"record":rowData});
+                debugger;
+                saveAction.setCallback(this, function(response) {
+                    var state = response.getState();
+                    if(state === "SUCCESS") {
+                        var toastEvent = $A.get("e.force:showToast");
+                        toastEvent.setParams({
+                            title: "保存",
+                            message: "保存しました!",
+                            type: "success"
+                        });
+                        toastEvent.fire();
+                    }
+                });
+                
+                $A.enqueueAction(saveAction);
+            }
+        })
+    </textarea>
+    <p>helper</p>
+    <textarea>
+        ({
+            createComponent: function(tagName, prop, addToParent, callBack){
+                var addToParentOuter = addToParent;
+                $A.createComponent(
+                    tagName,
+                    prop,
+                    function(newCmp, status, errorMessage){
+                        if (status === "SUCCESS") {
+                            var body = addToParentOuter.get("v.body");
+                            var pCmp = newCmp;
+                            body.push(newCmp);
+                            addToParentOuter.set("v.body", body);
+                            if(callBack){
+                                callBack(newCmp);
+                            }
+                        }
+                        else if (status === "INCOMPLETE") {
+                        }
+                        else if (status === "ERROR") {
+                        }
+                    }
+                );
+            }
+        })
+    </textarea>
+    <p>design</p>
+    <textarea>
+        <design:component>
+<design:attribute name="Layout" label="レイアウト" datasource="apex://LayoutPickList" />
+</design:component>
+    </textarea>
+    <p>style</p>
+    <textarea>
+        .THIS .uiInput{
+            padding:5px;
+        }
+        .THIS .sectionRow .uiInput{
+            float:left;
+            width:50%;
+        }
+        .THIS .sectionRow{
+            clear:both;
+        }
+        .THIS .sectionTitle{
+            font-size: 1rem;
+            line-height: 1.875rem;
+            background-color: rgb(243, 242, 242);
+            border: 1px solid transparent;
+            border-radius: .25rem;    
+            padding-right: .75rem;
+            padding-left: .75rem;
+            clear:both;
+        }
+    </textarea>
+</body>
+</html>

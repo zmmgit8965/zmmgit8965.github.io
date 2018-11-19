@@ -1,0 +1,64 @@
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>simplistTemplate</title>
+  <script src="../../../../js/vue.js"></script>
+  <script
+    src="https://code.jquery.com/jquery-3.3.1.js"
+    integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
+    crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="treeNode.css">
+    <script src="./treeGrid.js"></script>
+</head>
+<body>
+    <script src="../../../../js/globleBase.js"></script>
+  <div id="app" style="position: relative;">
+      <div>
+            <tree-grid  v-bind:tree_data="datas" v-bind:columns="columns" />
+      </div>
+      <div>
+            <tree-grid  v-bind:tree_data="datas" />
+      </div>
+      
+  </div>
+
+  <script>
+    // app date
+
+    var datas = {title:"root", name:"太郎", desc:"マネジャー", children:[
+                    {title:"c1", name:"一郎", desc:"開発者", children:[{title:"c11", children:[{title:"c111"}]},{title:"c12"}]},
+                    {title:"c2", name:"二郎", desc:"開発者", children:[{title:"c21"}]},
+                    {title:"c3", name:"三郎", desc:"開発者", children:[{title:"c31"},{title:"c32"}]},
+                ]};
+
+    var columns = [{title:"メンーバ", propertyName:"name", width:"100px"},
+                   {title:"コメント", propertyName:"desc", width:"200px"}];
+    // api source
+
+    $.getJSON( "http://localhost:65173/dirs.aspx", {} )
+      .done(function( json ) {
+
+        console.log(json)
+        
+        var columns = [{title:"最終更新日", propertyName:"lastUpdate", width:"200px"}];
+        var v = new Vue({
+          el: '#app',
+          data: {datas:json, columns:columns},
+          methods: {
+          }
+        });
+
+      }).fail(function( jqxhr, textStatus, error ) {
+        
+        var v = new Vue({
+          el: '#app',
+          data: {datas:datas, columns:columns},
+          methods: {
+          }
+        });
+
+    });
+  </script>
+</body>
+</html>

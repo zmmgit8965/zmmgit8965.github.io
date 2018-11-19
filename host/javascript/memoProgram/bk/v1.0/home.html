@@ -1,0 +1,119 @@
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>simplistTemplate</title>
+  <script src="../../../js/vue.js"></script>
+  <script
+    src="https://code.jquery.com/jquery-3.3.1.js"
+    integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
+    crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+
+<link type="application/atom+xml" rel="alternate" href="https://quilljs.com/feed.xml" title="Quill - Your powerful rich text editor" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/monokai-sublime.min.css" />
+<link rel="stylesheet" href="https://cdn.quilljs.com/1.3.6/quill.snow.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.7.1/katex.min.js" type="5e24fc88f4964762b08d49a6-"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js" type="5e24fc88f4964762b08d49a6-"></script>
+<script src="https://cdn.quilljs.com/1.3.6/quill.min.js" type="5e24fc88f4964762b08d49a6-"></script>
+<script src="https://ajax.cloudflare.com/cdn-cgi/scripts/4f936b58/cloudflare-static/rocket-loader.min.js" data-cf-nonce="5e24fc88f4964762b08d49a6-" defer=""></script>
+
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+</head>
+<body>
+    <div id="app">
+        <div>
+            <button class="w3-btn" v-on:click="createMemo"><i class="material-icons w3-xxlarge" style="font-size:38px;color:#2196F3">fiber_new</i></a>
+        </div>
+        <div>
+            <memo-root v-bind:category="memos" />
+        </div>
+        <div syle="position:absolute;">
+            <memo-view-modal ref="memoViewModal" v-bind:memo="{title:'',detail:''}" />
+        </div>
+    </div>
+
+    <script src="memoItem.js"></script>
+    <script src="memoViewModal.js"></script>
+    <script src="memoGroup.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/5.2.0/firebase.js"></script>
+    <script>
+    // Initialize Firebase
+    var config = {
+        apiKey: "AIzaSyAjv30ycfoiuYTRYFVQM-RwPj48iQG1oWM",
+        authDomain: "memosystem1.firebaseapp.com",
+        databaseURL: "https://memosystem1.firebaseio.com",
+        projectId: "memosystem1",
+        storageBucket: "",
+        messagingSenderId: "797681972148"
+    };
+    firebase.initializeApp(config);
+    var database = firebase.database();
+    var db = firebase.firestore();
+    </script>
+    <script>
+        //  var datas = [
+        //      {groupName:"javascript", subItem:[{title:"aaaa",detail:"xxxxxx",text:"a"},{title:"bbbb",detail:"xxxxxxxx",text:"a"}]},
+        //      {groupName:"dotnet", subItem:[{title:"cccc",detail:"xxxx",text:"a"}]},
+        //      {groupName:"salesforce", subItem:[{title:"cccc",detail:"xxxx",text:"a"}]},
+        //      {groupName:"c++", subItem:[{title:"cccc",detail:"xxxx",text:"a"}]}
+        //     ];
+        //  function createPath(currentPath , datas){
+        //      if(datas instanceof Array){
+        //          for(var i = 0 ; i<datas.length ; i++){
+        //             //datas[i].path = currentPath + "/" + i;
+        //              createPath(datas[i].path, datas[i]);
+        //          }
+        //      }else if(typeof datas === "object"){
+        //          for(var p in datas){
+        //             if(typeof datas[p] === "object" ){
+        //                 datas[p].path = currentPath + "/" + p;
+        //                 createPath(datas[p].path , datas[p]);
+        //             } 
+        //          }
+        //      }
+        //  }
+        //  createPath("memos", datas);
+        //  console.log(datas);
+        //  database.ref("memos").set(datas);
+
+        // database.ref('memos').once("value").then(function(data){
+        //     var memos = data.val();
+            
+        //     var v = new Vue({
+        //         el: '#app',
+        //         data: {memos:memos},
+        //         methods: {
+        //             createMemo : function(){
+        //                 this.$refs.memoViewModal.memo = {title:'new',detail:null};
+        //                 this.$refs.memoViewModal.show();
+        //             }
+        //         }
+        //     });
+        // });
+
+
+        //var demos = db.collection('Demo');
+        db.collection("Memo").get().then((querySnapshot) => {
+            debugger;
+            querySnapshot.forEach((doc) => {
+                console.log(`${doc.id} => ${doc.data()}`);
+            });
+        });
+        // db.collection("Memo").add({
+        //     first: "Alan",
+        //     middle: "Mathison",
+        //     last: "Turing",
+        //     born: 1912
+        // })
+        // .then(function(docRef) {
+        //     console.log("Document written with ID: ", docRef.id);
+        // })
+        // .catch(function(error) {
+        //     console.error("Error adding document: ", error);
+        // });
+    </script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>localStorageSample</title>
+    <script src="/js/vue.js"></script>
+    <script src="/js/lockr.js"></script>
+</head>
+<body>
+    <script src="../../../js/globleBase.js"></script>
+    <div id="app">
+            {{ datas }}
+        <table>
+            <tr>
+                <th>value 1</th>
+                <th>value 2</th>
+            </tr>
+            <tr v-for="row in datas">
+                <td><input type="text" v-model="row.v1" /></td>
+                <td><input type="text" v-model="row.v2" /></td>
+            </tr>
+        </table>
+        <button v-on:click="newRow()" >newRow</button>
+        <button v-on:click="saveDatas()" >saveDatas</button>
+    </div>
+    <script>
+    
+    var pageDatas = Lockr.get("pageDatas");
+    if(!pageDatas){
+        pageDatas= [];
+    }
+
+    var app = new Vue({
+        el: '#app',
+        data: {
+            datas: pageDatas
+        },
+        methods:{
+            newRow : function(){
+                //debugger;
+                this.datas.push({v1:"eeee", v2:"ffff"});
+            },
+            saveDatas : function(){
+                //Lockr.prefix = 'lockr';
+                Lockr.set('pageDatas', this.datas); // Saved as string
+                //localStorage.getItem('username');
+            }
+        }
+    });
+
+    </script>
+</body>
+</html>
