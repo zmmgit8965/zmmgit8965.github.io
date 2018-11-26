@@ -24,6 +24,8 @@
         crossorigin="anonymous"></script>
     <script src="https://www.gstatic.com/firebasejs/5.2.0/firebase.js"></script>
     <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <script src="./treeGrid.js"></script>
+    <link rel="stylesheet" href="treeNode.css">
     <style>
         table{
             border-collapse: collapse;
@@ -47,10 +49,13 @@
             <tr>
                 <td style="width:300px; padding:10px;">
                     <div class="w3-card" style="height:100%;width:100%;">
+                        <tree-grid  v-bind:tree_data="data.treeData" v-bind:on_node_click="nodeClick" v-bind:on_add_node="onAddNode" v-bind:on_delete_node="onDeleteNode" />
                         <button v-on:click="addNode()">+</button>
                         <table style="width:100%;">
                             <tr v-for="d in data.Dict" class="menuItem" >
-                                <td v-on:click="onPathClick(d.path)">{{d.path}}</td>
+                                <td v-on:click="onPathClick(d.path)">
+                                    {{d.path}}
+                                </td>
                                 <td width="70px">
                                     <button style="width:30px" v-on:click="addNode(d)">+</button>
                                     <button style="width:30px" v-on:click="deleteNode(d)">-</button>
@@ -153,7 +158,27 @@
         var dictList = [];
         addDictItem(dictList, obj , "");
         data.Dict = dictList;
+
+        var targetNode = {title:"root"};
+        makeTreeData(obj, targetNode);
+        data.treeData = targetNode;
+
+        initVue();
     });
+
+    function makeTreeData(node, targetNode){
+        var n = 0;
+        for(var name in node){
+            if(n == 0){
+                targetNode.children = [];
+                n++;
+            }
+            var childNode = {};
+            childNode.title = name;
+            targetNode.children.push(childNode);
+            makeTreeData(node[name], childNode);
+        }
+    }
 
     function addDictItem(dictList, obj, path){
         for(var name in obj){
@@ -165,7 +190,16 @@
         }
     }
 
-    var data = {Dict:[], currentDocId:"", contentHtml:""};
+    var data = {Dict:[], currentDocId:"", contentHtml:"", treeData:{}};
+    // data.treeData = {title:"root", name:"太郎", desc:"マネジャー", children:[
+    //                 {title:"c1", name:"一郎", desc:"開発者", children:[{title:"c11", children:[{title:"c111"}]},{title:"c12"}]},
+    //                 {title:"c2", name:"二郎", desc:"開発者", children:[{title:"c21"}]},
+    //                 {title:"c3", name:"三郎", desc:"開発者", children:[{title:"c31"},{title:"c32"}]},
+    //             ]};
+
+
+
+
     function initVue(){
         var v = new Vue({
             el: '#app',
@@ -182,6 +216,35 @@
                                                     readOnly: false
                                                 });
                     }
+                },
+                nodeClick : function(node){
+                    var me = this;
+                    var parentList = this.getParentList(node);
+                    
+                    data.currentDocId = "##" + parentList.join("##") + "##" + node.model.title;
+                    
+                    var v = db.collection("Dict").doc(data.currentDocId);
+                    v.onSnapshot(function(snap){
+                        data.contentHtml = snap.get("html");
+                        me.initQuill();
+                        if(data.contentHtml && data.contentHtml.startsWith("{")){
+                            me.quill.setContents(JSON.parse(data.contentHtml));
+                        }else{
+                            me.quill.setContents({});
+                        }
+                    });
+                },
+                getParentList:function(node){
+                    var l = [];
+                    var currentNode = node;
+                    while(currentNode.parent){
+                        if(currentNode.parent.model.title == "root"){
+                            break;
+                        }
+                        l.push(currentNode.parent.model.title);
+                        currentNode = currentNode.parent;
+                    }
+                    return l.reverse();
                 },
                 onPathClick : function(path){
                     var me = this;
@@ -213,6 +276,19 @@
                     });
 
                 },
+                onAddNode : function(node, newName){
+                    if(!newName){
+                        return;
+                    }
+
+                    var parentList = this.getParentList(node);
+                    
+                    firebase.database().ref('/MenuDict/' + parentList.join("/") + "/" + newName).set(0, function(error) {
+                        if (error) {
+                        } else {
+                        }
+                    });
+                },
                 addNode : function(parent){
 
                     var nodeName = window.prompt("Input Node Name.");
@@ -225,13 +301,35 @@
                     if(parent){
                         p = parent.path;
                     }
-                    debugger;
                     firebase.database().ref('/MenuDict' + p + "/" + nodeName).set(0, function(error) {
                         debugger;
                         if (error) {
                         } else {
                         }
                     });
+                },
+                onDeleteNode : function(node){
+                    if(!window.confirm("Delete ?")){
+                        return;
+                    }
+                    var parentList = this.getParentList(node);
+                    var path = '/MenuDict/' + parentList.join("/") + "/" + node.model.title;
+
+                    var ref = firebase.database().ref(path);
+                    ref.getParent().once('value').then(function(snapshot) {
+                        var obj = snapshot.val();
+                        var i=0 ;
+
+                        for(var n in obj){
+                            if(i>0){
+                                ref.remove();
+                                return;
+                            }
+                            i++;
+                        }
+                        ref.getParent().set(0);
+                    });
+
                 },
                 deleteNode : function(node){
                     if(!window.confirm("Delete ?")){
@@ -259,7 +357,6 @@
         });
     }
 
-    initVue();
-    initQuill();
+    
     </script>
 </html>
