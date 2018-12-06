@@ -58,6 +58,7 @@
                         <div style="height:1px;"></div>
                         <div>
                             <button v-on:click="saveClick()">保存</button>
+                            <span style="padding-left: 100px" id="updateDate"></span>
                         </div>
 <div id="editor" style="height:80%;"></div>
                         </div>
@@ -162,9 +163,15 @@
                     var v = db.collection("Dict").doc(data.currentDocId);
                     me.initEditor();
                     $('#editor').summernote('code', "");
+                    $("updateDate").html("");
                     v.onSnapshot(function(snap){
                         data.contentHtml = snap.get("html");
                         $('#editor').summernote('code', data.contentHtml);
+                        if(snap.get("updateDate")){
+                            var d = snap.get("updateDate");
+                            $("#updateDate").html(d.getFullYear()  + "-" + (d.getMonth()+1) + "-" + d.getDate() + " " +
+                                d.getHours() + ":" + d.getMinutes());
+                        }
                     });
                 },
                 getParentList:function(node){
