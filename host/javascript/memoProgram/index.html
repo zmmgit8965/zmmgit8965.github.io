@@ -163,7 +163,7 @@
                     var v = db.collection("Dict").doc(data.currentDocId);
                     me.initEditor();
                     $('#editor').summernote('code', "");
-                    $("updateDate").html("");
+                    $("#updateDate").html("");
                     v.onSnapshot(function(snap){
                         data.contentHtml = snap.get("html");
                         $('#editor').summernote('code', data.contentHtml);
@@ -177,7 +177,7 @@
                 getParentList:function(node){
                     var l = [];
                     var currentNode = node;
-                    while(currentNode.parent){
+                    while(currentNode.parent){]
                         if(currentNode.parent.model.title == "root"){
                             break;
                         }
