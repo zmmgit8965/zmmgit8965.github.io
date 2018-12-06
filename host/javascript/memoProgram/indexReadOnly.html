@@ -57,7 +57,6 @@
                     <div class="w3-card" style="height:100%;width:100%;">
                         <div style="height:1px;"></div>
                         <div>
-                            <button v-on:click="saveClick()">保存</button>
                         </div>
 <div id="editor" style="height:80%;"></div>
                         </div>
@@ -147,12 +146,6 @@
             el: '#app',
             data: {data:data},
             methods: {
-                initEditor : function(){
-                    if(this.editor == undefined){
-                        $('#editor').summernote({height: $('#editor').parent().height()-100});
-                        this.editor = $('#editor');
-                    }
-                },
                 nodeClick : function(node){
                     var me = this;
                     var parentList = this.getParentList(node);
@@ -160,11 +153,9 @@
                     data.currentDocId = "##" + parentList.join("##") + "##" + node.model.title;
                     
                     var v = db.collection("Dict").doc(data.currentDocId);
-                    me.initEditor();
-                    $('#editor').summernote('code', "");
                     v.onSnapshot(function(snap){
                         data.contentHtml = snap.get("html");
-                        $('#editor').summernote('code', data.contentHtml);
+                        $('#editor').html(data.contentHtml);
                     });
                 },
                 getParentList:function(node){
@@ -182,7 +173,7 @@
                 saveClick : function(){
 
                     var content = $('#editor').summernote('code');
-                    db.collection("Dict").doc(data.currentDocId).set({html: content,updateDate:new Date()})
+                    db.collection("Dict").doc(data.currentDocId).set({html: content})
                     .then(function() {
                         console.log("Document successfully written!");
                         alert("save over.")
