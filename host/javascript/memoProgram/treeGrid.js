@@ -262,7 +262,7 @@ Vue.component('tree-grid', {
     <div>
         <table class="treeTitle" style="width:100%;">
             <tr>
-                <td>Tree</td>
+                <td class="treeTitleContent">Tree</td>
                 <td style="width:150px;">
                     <button v-on:click="addChild">+</button>
                     <button v-on:click="collAll">CA</button>

@@ -26,7 +26,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.11/summernote.js"></script>
 
     <script src="./treeGrid.js"></script>
-    <link rel="stylesheet" href="treeNode.css">
+    <link rel="stylesheet" href="treeNode.css" />
     <style>
         table{
             border-collapse: collapse;
@@ -41,6 +41,29 @@
         .menuItem:hover{
             background-color: lightgray;
         }
+        .dataItemTitle{
+            background-color: #40b9ef;
+            color:white;
+            border-radius: 5px;
+        }
+        .dataItemTitle .path{
+            display: inline-block;
+            padding:5px;
+        }
+        .dataListItem{
+            padding:10px;
+            border-top:3px solid #999;
+        }
+        .dataListItemHtmlDiv{
+            max-height:300px;
+            overflow:auto;
+            background-color: white;
+        }
+        #recentDataDiv{
+            overflow: auto;
+            height: 97vh;
+            background-color:#f2fbff;
+        }
     </style>
 </head>
 
@@ -48,19 +71,46 @@
     <div id="app" style="width:100vw;height:100vh;">
         <table style="width:100%;height:100%;">
             <tr>
-                <td style="width:300px; padding:10px;">
+                <td id="menuTreeTd" style="width:300px; padding:10px;">
                     <div class="w3-card" style="height:100%;width:100%;">
                         <tree-grid  v-bind:tree_data="data.treeData" v-bind:on_node_click="nodeClick" v-bind:on_add_node="onAddNode" v-bind:on_delete_node="onDeleteNode" />
                     </div>
                 </td>
+                <td id="splitTd" style="width:10px;position:relative; left:-5px;">
+                    <img src="split.png" style="cursor:pointer" v-on:click="splitClick()" />
+                </td>
                 <td style="padding:10px;padding-left:0;min-width:50%;">
-                    <div class="w3-card" style="height:100%;width:100%;">
+                    <div id="pageContent" class="w3-card" style="height:100%;width:100%;">
                         <div style="height:1px;"></div>
-                        <div>
-                            <button v-on:click="saveClick()">保存</button>
-                            <span style="padding-left: 100px" id="updateDate"></span>
+                        <div id="contentEditDiv" style="display: none;">
+                            <div>
+                                <button class="w3-button w3-blue w3-border w3-border-indigo w3-round-large w3-padding-small" v-on:click="saveClick()">保存</button>
+                                <span style="padding-left: 100px" id="updateDate"></span>
+                            </div>
+                            <div class="dataItemTitle">
+                                <div v-for="p in data.currentDataItem.pathHtml" class="path" v-html="p">
+                                </div>
+                                <div class="path" style="margin-left:20px;">
+                                    {{data.currentDataItem.updateDateStr}}
+                                </div>
+                            </div>
+                            <div id="editor" style="height:80%;"></div>
                         </div>
-<div id="editor" style="height:80%;"></div>
+                        <div id="recentDataDiv" >
+                            <div v-for="c in data.recentData" class="dataListItem" >
+                                <div class="dataItemTitle">
+                                    <div v-for="p in c.pathHtml" class="path" v-html="p">
+                                    </div>
+                                    <div class="path" style="margin-left:20px;">
+                                        {{c.updateDateStr}}
+                                    </div>
+                                </div>
+                                <div style="padding:10px 10px;overflow:auto;width: 100%">
+                                    <div class="dataListItemHtmlDiv" style="width:500px;overflow:auto;" v-html="c.html">
+                                    
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </td>
@@ -133,7 +183,7 @@
         }
     }
 
-    var data = {Dict:[], currentDocId:"", contentHtml:"", treeData:{}};
+    var data = {Dict:[], currentDocId:"", contentHtml:"", currentDataItem:{}, treeData:{}, recentData:[]};
     // data.treeData = {title:"root", name:"太郎", desc:"マネジャー", children:[
     //                 {title:"c1", name:"一郎", desc:"開発者", children:[{title:"c11", children:[{title:"c111"}]},{title:"c12"}]},
     //                 {title:"c2", name:"二郎", desc:"開発者", children:[{title:"c21"}]},
@@ -150,7 +200,7 @@
             methods: {
                 initEditor : function(){
                     if(this.editor == undefined){
-                        $('#editor').summernote({height: $('#editor').parent().height()-100});
+                        $('#editor').summernote({height: $('#pageContent').parent().height()-100});
                         this.editor = $('#editor');
                     }
                 },
@@ -163,16 +213,24 @@
                     var v = db.collection("Dict").doc(data.currentDocId);
                     me.initEditor();
                     $('#editor').summernote('code', "");
-                    $("#updateDate").html("");
                     v.onSnapshot(function(snap){
+
                         data.contentHtml = snap.get("html");
                         $('#editor').summernote('code', data.contentHtml);
-                        if(snap.get("updateDate")){
-                            var d = snap.get("updateDate");
-                            $("#updateDate").html(d.getFullYear()  + "-" + (d.getMonth()+1) + "-" + d.getDate() + " " +
-                                d.getHours() + ":" + d.getMinutes());
-                        }
+
+                        data.currentDataItem = makeMemoItem(snap);
+                        $("#recentDataDiv").hide();
+                        $("#contentEditDiv").show();
                     });
+                },
+                splitClick : function(){
+                    if($("#menuTreeTd:visible").length > 0){
+                        $("#menuTreeTd").hide();
+                        $("#splitTd").css("left", "0");
+                    }else{
+                        $("#menuTreeTd").show();
+                        $("#splitTd").css("left", "-5px");
+                    }
                 },
                 getParentList:function(node){
                     var l = [];
@@ -233,11 +291,57 @@
                         }
                         ref.getParent().set(0);
                     });
+                },
+                showLoading : function(){
+
+                },
+                hideLoading : function(){
+
                 }
             }
         });
     }
 
-    
+    function makeMemoItem(doc){
+        var obj = {html:doc.get("html"), 
+                    updateDate : doc.get("updateDate"),
+                    path : doc.id.split("##")};//replaceAll("##" , " -> ")};
+        if(obj.updateDate){
+            obj.updateDateStr = obj.updateDate.getFullYear()  + "/" + (obj.updateDate.getMonth()+1) + "/" + obj.updateDate.getDate() + " " +
+                                obj.updateDate.getHours() + ":" + obj.updateDate.getMinutes();
+        }
+        obj.pathHtml = [];
+
+        for (let i = 0; i < obj.path.length; i++) {
+            const p = obj.path[i];
+            if(p == "") continue;
+            obj.pathHtml.push(p);
+            if(i != obj.path.length -1){
+                obj.pathHtml.push("<img src='subIcon.png' style='height:16px;' />");
+            }
+        }
+        return obj
+    }
+
+    function pageInit(){
+        data.recentData = [];
+        recentData = [];
+        db.collection("Dict").orderBy("updateDate","desc").limit(10).get().then(function(doc){
+            for (let i = 0; i < doc.docs.length; i++) {
+                const d = doc.docs[i];
+                recentData.push(makeMemoItem(d));
+            }
+            data.recentData = recentData;
+            setTimeout(resetDataListItemHtmlDivWidth, 1);
+        });
+    }
+
+    function resetDataListItemHtmlDivWidth(){
+        $(".dataListItemHtmlDiv").each(function(){
+            $(this).width($(this).parent().width());
+        });
+    }
+
+    pageInit();
     </script>
 </html>
