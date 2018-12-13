@@ -64,6 +64,16 @@
             height: 97vh;
             background-color:#f2fbff;
         }
+        #loadingDiv{
+            position: absolute;
+            top:0;
+            left:0;
+            right:0;
+            bottom:0;
+            background-color: black;
+            opacity: 0.7;
+            z-index: 999;
+        }
     </style>
 </head>
 
@@ -77,7 +87,7 @@
                     </div>
                 </td>
                 <td id="splitTd" style="width:10px;position:relative; left:-5px;">
-                    <img src="split.png" style="cursor:pointer" v-on:click="splitClick()" />
+                    <img src="img/split.png" style="cursor:pointer" v-on:click="splitClick()" />
                 </td>
                 <td style="padding:10px;padding-left:0;min-width:50%;">
                     <div id="pageContent" class="w3-card" style="height:100%;width:100%;">
@@ -117,9 +127,46 @@
             </tr>
         </table>
     </div>
+    <div id="loadingDiv" style="display:none">
+        <table style="width:100%;height:100%">
+            <tr>
+                <td align="center">
+                    <img src="img/loading.gif" style="opacity:1;">
+                </td>
+            </tr>
+        </table>
+    </div>
 </body>
 
 <script>
+
+    function showLoading(el){
+        if(el == undefined){
+            $("#loadingDiv").css("left", "0");
+            $("#loadingDiv").css("right", "0");
+            $("#loadingDiv").css("top", "0");
+            $("#loadingDiv").css("bottom", "0");
+            $("#loadingDiv").css("width", "auto");
+            $("#loadingDiv").css("height", "auto");
+        }else{
+            var offset = $(el).offset();
+            var width = $(el).width();
+            var height = $(el).height();
+            $("#loadingDiv").css("left", offset.left + "px");
+            $("#loadingDiv").css("top", offset.top + "px");
+            $("#loadingDiv").css("right", "auto");
+            $("#loadingDiv").css("bottom", "auto");
+            $("#loadingDiv").css("width", width + "px");
+            $("#loadingDiv").css("height", height + "px");
+        }
+        $("#loadingDiv").show();
+    }
+    function hideLoading(){
+        $("#loadingDiv").hide();
+    }
+
+    showLoading();
+
     // Initialize Firebase
     var config = {
         apiKey: "AIzaSyAjv30ycfoiuYTRYFVQM-RwPj48iQG1oWM",
@@ -157,6 +204,7 @@
         data.treeData = targetNode;
 
         initVue();
+        hideLoading();
     });
 
     function makeTreeData(node, targetNode){
@@ -205,6 +253,9 @@
                     }
                 },
                 nodeClick : function(node){
+
+                    showLoading($("#pageContent"));
+
                     var me = this;
                     var parentList = this.getParentList(node);
                     
@@ -221,6 +272,7 @@
                         data.currentDataItem = makeMemoItem(snap);
                         $("#recentDataDiv").hide();
                         $("#contentEditDiv").show();
+                        hideLoading();
                     });
                 },
                 splitClick : function(){
@@ -291,12 +343,6 @@
                         }
                         ref.getParent().set(0);
                     });
-                },
-                showLoading : function(){
-
-                },
-                hideLoading : function(){
-
                 }
             }
         });
@@ -317,7 +363,7 @@
             if(p == "") continue;
             obj.pathHtml.push(p);
             if(i != obj.path.length -1){
-                obj.pathHtml.push("<img src='subIcon.png' style='height:16px;' />");
+                obj.pathHtml.push("<img src='img/subIcon.png' style='height:16px;' />");
             }
         }
         return obj
