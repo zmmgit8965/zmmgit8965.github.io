@@ -1,3 +1,6 @@
+//base level APIs
+
+
 var ChromeAPI = (function () {
     var api = function () { }
     api.saveLocalData = function (keyVal, saveVal, callback) {
@@ -23,6 +26,23 @@ var ChromeAPI = (function () {
         chrome.storage.local.clear(function(){
             if(callback){
                 callback();
+            }
+        });
+    }
+
+    api.searchCookie = function(domain, cookieName , callback, errorCallback){
+        chrome.cookies.getAll({}, function(cookies) {
+            var finded = false;
+            cookies.forEach(cookie => {
+                if(cookie.domain.endsWith(domain)
+                   && cookie.name == cookieName){
+                       callback(cookie);
+                       finded = true;
+                       return;
+                   }
+            });
+            if(finded == false && errorCallback){
+                errorCallback("not found");
             }
         });
     }
@@ -90,57 +110,68 @@ var SalesforceAPI = (function () {
     }
     api.login = function (callBack, errorCallBack) {
 
-        ChromeAPI.getLocalData("LoginInfo", function(d){
-            if(d.LoginInfo){
+        ChromeAPI.searchCookie("salesforce.com","sid",
+            function(cookie){
+                api.LoginInfo = {};
+                api.LoginInfo.domain = "https://" + cookie.domain + "/";
+                api.LoginInfo.sessionId = cookie.value;
+                if (callBack) callBack(api.LoginInfo);
+            }, function(){
+                debugger;
+                window.location.href = "https://login.salesforce.com/";
+            });
 
-                var xhr = new XMLHttpRequest();
-                xhr.open("POST", d.LoginInfo.domain + `services/Soap/c/43.0/`, true);
-                xhr.setRequestHeader("Content-Type", "text/xml");
-                xhr.setRequestHeader("soapAction", "Wololo");
+        // ChromeAPI.getLocalData("LoginInfo", function(d){
+        //     if(d.LoginInfo){
+
+        //         var xhr = new XMLHttpRequest();
+        //         xhr.open("POST", d.LoginInfo.domain + `services/Soap/c/43.0/`, true);
+        //         xhr.setRequestHeader("Content-Type", "text/xml");
+        //         xhr.setRequestHeader("soapAction", "Wololo");
                 
-                    var sendStr = `<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:enterprise.soap.sforce.com">
-                    <soapenv:Header>
-                    <urn:LoginScopeHeader>
-                        <urn:organizationId>${d.LoginInfo.organizationId}</urn:organizationId>
-                    </urn:LoginScopeHeader>
-                    </soapenv:Header>
-                    <soapenv:Body>
-                    <urn:login>
-                        <urn:username>${d.LoginInfo.userName}</urn:username>
-                        <urn:password>${d.LoginInfo.password}</urn:password>
-                    </urn:login>
-                    </soapenv:Body>
-                </soapenv:Envelope>`;
+        //             var sendStr = `<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:urn="urn:enterprise.soap.sforce.com">
+        //             <soapenv:Header>
+        //             <urn:LoginScopeHeader>
+        //                 <urn:organizationId>${d.LoginInfo.organizationId}</urn:organizationId>
+        //             </urn:LoginScopeHeader>
+        //             </soapenv:Header>
+        //             <soapenv:Body>
+        //             <urn:login>
+        //                 <urn:username>${d.LoginInfo.userName}</urn:username>
+        //                 <urn:password>${d.LoginInfo.password}</urn:password>
+        //             </urn:login>
+        //             </soapenv:Body>
+        //         </soapenv:Envelope>`;
         
-                xhr.onload = function () {
-                    if (xhr.status == 200) {
-                        var xmlDoc = xhr.responseXML;
+        //         xhr.onload = function () {
+        //             if (xhr.status == 200) {
+        //                 var xmlDoc = xhr.responseXML;
         
-                        var sessionIdEl = $(xmlDoc).find("sessionId");
-                        var serverUrl = $(xmlDoc).find("serverUrl")[0].innerHTML;
-                        var domain = serverUrl.substring(0, serverUrl.indexOf("salesforce.com/") + "salesforce.com/".length);
-                        var sessionId = sessionIdEl[0].innerHTML;
+        //                 var sessionIdEl = $(xmlDoc).find("sessionId");
+        //                 var serverUrl = $(xmlDoc).find("serverUrl")[0].innerHTML;
+        //                 var domain = serverUrl.substring(0, serverUrl.indexOf("salesforce.com/") + "salesforce.com/".length);
+        //                 var sessionId = sessionIdEl[0].innerHTML;
         
-                        api.LoginInfo = {};
-                        api.LoginInfo.userName = d.LoginInfo.userName;
-                        api.LoginInfo.password = d.LoginInfo.password;
-                        api.LoginInfo.domain = d.LoginInfo.domain;
-                        api.LoginInfo.organizationId = d.LoginInfo.organizationId;
-                        api.LoginInfo.sessionId = sessionId;
+        //                 api.LoginInfo = {};
+        //                 api.LoginInfo.userName = d.LoginInfo.userName;
+        //                 api.LoginInfo.password = d.LoginInfo.password;
+        //                 api.LoginInfo.domain = d.LoginInfo.domain;
+        //                 api.LoginInfo.organizationId = d.LoginInfo.organizationId;
+        //                 api.LoginInfo.sessionId = sessionId;
         
-                        ChromeAPI.saveLocalData("LoginInfo", api.LoginInfo);
-                        if (callBack) callBack(api.LoginInfo);
-                    } else {
-                        if (errorCallBack) {
-                            errorCallBack(JSON.parse(xhr.responseText));
-                        }
-                    }
-                }
-                xhr.send(sendStr);
-            }else{
-                errorCallBack("No optionData.");
-            }
-        })
+        //                 ChromeAPI.saveLocalData("LoginInfo", api.LoginInfo);
+        //                 if (callBack) callBack(api.LoginInfo);
+        //             } else {
+        //                 if (errorCallBack) {
+        //                     errorCallBack(JSON.parse(xhr.responseText));
+        //                 }
+        //             }
+        //         }
+        //         xhr.send(sendStr);
+        //     }else{
+        //         errorCallBack("No optionData.");
+        //     }
+        // })
 
     }
 
