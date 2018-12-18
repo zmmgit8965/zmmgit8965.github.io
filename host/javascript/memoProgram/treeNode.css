@@ -13,8 +13,9 @@
 .treeRoot .treeNode{
     border-bottom:1px solid lightgray;
     border-top:1px solid lightgray;
+    white-space: nowrap;
 }
-.treeRoot .treeNodeName{
+.treeRoot .treeNodeName,.treeRoot .treeNodeButton{
     display:inline-block;
 }
 .treeNode:hover{

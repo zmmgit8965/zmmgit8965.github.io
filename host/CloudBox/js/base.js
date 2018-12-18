@@ -32,16 +32,16 @@ var ChromeAPI = (function () {
 
     api.searchCookie = function(domain, cookieName , callback, errorCallback){
         chrome.cookies.getAll({}, function(cookies) {
-            var finded = false;
+            var findedCookies = [];
             cookies.forEach(cookie => {
                 if(cookie.domain.endsWith(domain)
                    && cookie.name == cookieName){
-                       callback(cookie);
-                       finded = true;
-                       return;
+                        findedCookies.push(cookie);
                    }
             });
-            if(finded == false && errorCallback){
+            if(findedCookies.length>0){
+                callback(findedCookies);
+            }else{
                 errorCallback("not found");
             }
         });
@@ -111,13 +111,40 @@ var SalesforceAPI = (function () {
     api.login = function (callBack, errorCallBack) {
 
         ChromeAPI.searchCookie("salesforce.com","sid",
-            function(cookie){
-                api.LoginInfo = {};
-                api.LoginInfo.domain = "https://" + cookie.domain + "/";
-                api.LoginInfo.sessionId = cookie.value;
-                if (callBack) callBack(api.LoginInfo);
+            function(cookies){
+                api.userId = null;
+
+                cookies.forEach(cookie => {
+                   if(api.userId == null) {
+                        api.LoginInfo = {};
+                        api.LoginInfo.domain = "https://" + cookie.domain + "/";
+                        api.LoginInfo.sessionId = cookie.value;
+                        api.requestRESTApi("services/data/v25.0/", 
+                            function(d){
+                                d = JSON.parse(d);
+                                if(d.identity.lastIndexOf("/") > 0){
+                                    api.userId = d.identity.substring(d.identity.lastIndexOf("/") + 1, d.identity.length);
+                                }
+                                if(api.userId != null){
+                                    if (callBack) callBack(api.LoginInfo);
+                                }
+                            }, 
+                            function(d){
+                                console.log("session invalid:" + cookie.domain + "--" + cookie.value);
+                            });
+                   }
+                });
+
+                setTimeout(function(){
+                    if(api.userId == null){
+                        alert("session invalid");
+                        ChromeAPI.clearLocalData();
+                        window.location.href = "https://login.salesforce.com/";
+                    }
+                }, 5000);
             }, function(){
-                debugger;
+                alert("not login session.");
+                ChromeAPI.clearLocalData();
                 window.location.href = "https://login.salesforce.com/";
             });
 
@@ -177,36 +204,52 @@ var SalesforceAPI = (function () {
 
     api.requestToolingApi = function (soql, callBack, errorCallBack) {
         var xhr = new XMLHttpRequest();
-        xhr.open("POST", api.LoginInfo.domain + "services/Soap/T/43.0", true);
-        xhr.setRequestHeader("Content-Type", "text/xml");
-        xhr.setRequestHeader("soapAction", "Wololo");
-
-        var sendStr = `<v:Envelope xmlns:i="http://www.w3.org/2001/XMLSchema-instance" xmlns:d="http://www.w3.org/2001/XMLSchema" xmlns:c="http://schemas.xmlsoap.org/soap/encoding/" xmlns:v="http://schemas.xmlsoap.org/soap/envelope/">
-        <v:Header>
-          <n0:SessionHeader xmlns:n0="urn:tooling.soap.sforce.com">
-            <n0:sessionId>${api.LoginInfo.sessionId}</n0:sessionId>
-          </n0:SessionHeader>
-        </v:Header>
-        <v:Body>
-          <n1:query id="o0" c:root="1" xmlns:n1="urn:tooling.soap.sforce.com">
-            <parameters>
-            ${soql}
-          </parameters>
-          </n1:query>
-        </v:Body>
-        </v:Envelope>`;
+        xhr.open("GET", api.LoginInfo.domain +"services/data/v35.0/tooling/query?q=" + soql.replace(" " + "+"), true);
+        
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.setRequestHeader("X-PrettyPrint", "1");
+        xhr.setRequestHeader("Authorization", "Bearer " + api.LoginInfo.sessionId);
+    
         xhr.onload = function () {
-            if (xhr.status == 200) {
-                var xmlDoc = xhr.responseXML;
-
-                callBack(xmlDoc, xhr.responseText);
-            } else {
-                if (errorCallBack) {
-                    errorCallBack(JSON.parse(xhr.responseText));
-                }
-            }
+        if (xhr.statusText == "OK") {
+            callBack(JSON.parse(xhr.responseText));
+        } else {
+            errorCallBack(JSON.parse(xhr.responseText));
         }
-        xhr.send(sendStr);
+        }
+        xhr.send();
+
+        // var xhr = new XMLHttpRequest();
+        // xhr.open("POST", api.LoginInfo.domain + "services/Soap/T/43.0", true);
+        // xhr.setRequestHeader("Content-Type", "text/xml");
+        // xhr.setRequestHeader("soapAction", "Wololo");
+
+        // var sendStr = `<v:Envelope xmlns:i="http://www.w3.org/2001/XMLSchema-instance" xmlns:d="http://www.w3.org/2001/XMLSchema" xmlns:c="http://schemas.xmlsoap.org/soap/encoding/" xmlns:v="http://schemas.xmlsoap.org/soap/envelope/">
+        // <v:Header>
+        //   <n0:SessionHeader xmlns:n0="urn:tooling.soap.sforce.com">
+        //     <n0:sessionId>${api.LoginInfo.sessionId}</n0:sessionId>
+        //   </n0:SessionHeader>
+        // </v:Header>
+        // <v:Body>
+        //   <n1:query id="o0" c:root="1" xmlns:n1="urn:tooling.soap.sforce.com">
+        //     <parameters>
+        //     ${soql}
+        //   </parameters>
+        //   </n1:query>
+        // </v:Body>
+        // </v:Envelope>`;
+        // xhr.onload = function () {
+        //     if (xhr.status == 200) {
+        //         var xmlDoc = xhr.responseXML;
+
+        //         callBack(xmlDoc, xhr.responseText);
+        //     } else {
+        //         if (errorCallBack) {
+        //             errorCallBack(JSON.parse(xhr.responseText));
+        //         }
+        //     }
+        // }
+        // xhr.send(sendStr);
     }
 
     api.requestData = function (soql, callBack, errorCallBack) {

@@ -6,7 +6,16 @@ Array.prototype.insert = function ( index, item ) {
 Array.prototype.remove = function ( index ) {
     this.splice(index, 1);
 };
-
+Array.prototype.removeByValue = function() {
+    var what, a = arguments, L = a.length, ax;
+    while (L && this.length) {
+        what = a[--L];
+        while ((ax = this.indexOf(what)) !== -1) {
+            this.splice(ax, 1);
+        }
+    }
+    return this;
+};
 
 // api base class
 
@@ -264,7 +273,6 @@ Vue.component('tree-grid', {
             <tr>
                 <td class="treeTitleContent">Tree</td>
                 <td style="width:150px;">
-                    <button v-on:click="addChild">+</button>
                     <button v-on:click="collAll">CA</button>
                     <button v-on:click="expendAll">EA</button>
                 </td>
@@ -282,7 +290,6 @@ Vue.component('tree-grid', {
     <div v-for="node in treeNodeList" 
         v-bind:class="'treeNode' + (node.children.length == 0 ? ' leafNode':'') + (node.selected? ' selectedNode': '')" 
         v-show="node.visible && node.isAllParentVisible()"
-        v-on:click="rowClick(node)"
         v-on:mousedown="treeNodeMouseDown(node)"
         v-on:mouseover="treeNodeMouseOver(node)"
         v-on:mouseleave="treeNodeMouseLeave(node)">
@@ -291,8 +298,12 @@ Vue.component('tree-grid', {
             <span v-if="node.children.length == 0">・</span>
             <span v-if="node.children.length != 0 && node.toggleFlg == true" v-on:click="toggleClick(node)">▷</span>
             <span v-if="node.children.length != 0 && node.toggleFlg == false" v-on:click="toggleClick(node)">▼</span>
-            <div class="treeNodeName">
-                {{node.model.title}}<button style="margin-left:10px;" v-on:click="deleteNode(node)">D</button>
+            <div class="treeNodeName" v-on:click="rowClick(node)">
+                <span>{{node.model.title}}</span>
+            </div>
+            <div class="treeNodeButton">
+                <button v-on:click="addChild(node)">+</button>
+                <button v-on:click="deleteNode(node)">D</button>
             </div>
         </div>
         <!--<div class="treeGrid">
@@ -336,15 +347,17 @@ Vue.component('tree-grid', {
         expendAll : function(){
             this.selectedNode.expendAll();
         },
-        addChild : function(){
+        addChild : function(clickNode){
             var txt = prompt("addText");
-            var tn = new TreeNode({title:txt}, this);
-            this.selectedNode.appendChild(tn);
-            var lastChild = this.selectedNode.getLastChild();
-            var lastChildIndex = this.treeNodeList.indexOf(lastChild);
-            this.treeNodeList = this.rootNode.getAllGenerations();
-            if(this.on_add_node){
-                this.on_add_node(lastChild, txt);
+            if(txt){
+                var tn = new TreeNode({title:txt}, this);
+                clickNode.appendChild(tn);
+                var lastChild = clickNode.getLastChild();
+                var lastChildIndex = this.treeNodeList.indexOf(lastChild);
+                this.treeNodeList = this.rootNode.getAllGenerations();
+                if(this.on_add_node){
+                    this.on_add_node(lastChild, txt);
+                }
             }
         },
         treeNodeMouseDown : function(node){
@@ -363,6 +376,10 @@ Vue.component('tree-grid', {
             if(this.on_delete_node){
                 this.on_delete_node(node);
             }
+            node.parent.children.removeByValue(node);
+            this.treeNodeList = this.rootNode.getAllGenerations();
+
+            
         }
       }
 })

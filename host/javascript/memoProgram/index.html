@@ -313,9 +313,6 @@
 
                 },
                 onAddNode : function(node, newName){
-                    if(!newName){
-                        return;
-                    }
 
                     var parentList = this.getParentList(node);
                     
@@ -345,6 +342,14 @@
                             i++;
                         }
                         ref.getParent().set(0);
+                    });
+
+                    var currentDocId = "##" + parentList.join("##") + "##" + node.model.title;
+
+                    db.collection("Dict").doc(currentDocId).delete().then(function() {
+                        console.log("Document successfully deleted!");
+                    }).catch(function(error) {
+                        console.error("Error removing document: ", error);
                     });
                 }
             }
