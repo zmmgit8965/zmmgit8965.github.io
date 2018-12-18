@@ -149,6 +149,16 @@ Vue.component('obj-datas', {
                     e.preventDefault();
                 });
                 $(td).empty().append(button);
+
+                button = $('<a href="">');
+                button.css("margin-left", "8px");
+                button.html("Ref")
+                button.attr("rId", value);
+                button.click(function(e){
+                    window.open(SalesforceAPI.LoginInfo.domain + $(this).attr("rId"));
+                    e.preventDefault();
+                });
+                $(td).append(button);
             };
             
             var actionCol = {};

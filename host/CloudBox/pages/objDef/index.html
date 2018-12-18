@@ -64,23 +64,23 @@
                 <div style="padding:8px;">
                     <div class="w3-card objProp" style="height:100%;">
                         <div class="w3-row">
-                            <div class="w3-col s6">タイプ:</div>
+                            <div class="w3-col s3">タイプ:</div>
                             <div class="w3-col s6">{{appData.object.custom == true ? "カスタムオブジェクト" : "標準オブジェクト"}}</div>
                         </div>
                         <div class="w3-row">
-                            <div class="w3-col s6">ラベル:</div>
+                            <div class="w3-col s3">ラベル:</div>
                             <div class="w3-col s6">{{appData.object.label}}</div>
                         </div>
                         <div class="w3-row">
-                            <div class="w3-col s6">API名:</div>
+                            <div class="w3-col s3">API名:</div>
                             <div class="w3-col s6">{{appData.object.name}}</div>
                         </div>
                         <div class="w3-row" v-if="appData.object.fields">
-                            <div class="w3-col s6">項目数:</div>
+                            <div class="w3-col s3">項目数:</div>
                             <div class="w3-col s6">{{appData.object.fields.length}}</div>
                         </div>
                         <div class="w3-row" v-if="appData.dataCount != null">
-                            <div class="w3-col s6">データ件数:</div>
+                            <div class="w3-col s3">データ件数:</div>
                             <div class="w3-col s6">{{appData.dataCount}}件</div>
                         </div>
 
@@ -108,7 +108,8 @@
                         <div id="dataTab" ref="dataTab" v-bind:class="{hidden:appData.selectedTab!='dataTab'}" class="tabDiv">
                             <obj-datas v-if="appData.cmpCreateFlg.dataTab" v-bind:object="appData.object" />
                         </div>
-                        <div id="relationTab" ref="relationTab" v-bind:class="{hidden:appData.selectedTab!='relationTab'}" class="tabDiv"></div>
+                        <div id="relationTab" ref="relationTab" v-bind:class="{hidden:appData.selectedTab!='relationTab'}" class="tabDiv">
+                            <obj-ref-map v-if="appData.cmpCreateFlg.relationTab" v-bind:object="appData.object" />
                         </div>
                         <div id="layoutTab" ref="layoutTab" v-bind:class="{hidden:appData.selectedTab!='layoutTab'}" class="tabDiv">
                         </div>
@@ -120,6 +121,7 @@
     <script src="../cmpLib/objFieldList.js"></script>
     <script src="../cmpLib/objRefBtn.js"></script>
     <script src="../cmpLib/objData.js"></script>
+    <script src="../cmpLib/objRefMap.js"></script>
     <script src="main.js"></script>
 </body>
 

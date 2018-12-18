@@ -56,9 +56,8 @@ var v = new Vue({
                     searchName = searchName.substring(searchName.indexOf("__") + 2, searchName.length);
                 }
 
-                SalesforceAPI.requestToolingApi("SELECT Id,DeveloperName FROM CustomObject WHERE DeveloperName='" + searchName + "'", function (doc, text) {
-                    var s = $(doc).find("sf\\:Id").html();
-                    window.open(SalesforceAPI.LoginInfo.domain + s);
+                SalesforceAPI.requestToolingApi("SELECT Id,DeveloperName FROM CustomObject WHERE DeveloperName='" + searchName + "'", function (d) {
+                    window.open(SalesforceAPI.LoginInfo.domain + d.records[0].Id);
                 });
             } else {
                 window.open(SalesforceAPI.LoginInfo.domain + "p/setup/layout/LayoutFieldList?type=" + obj.name);

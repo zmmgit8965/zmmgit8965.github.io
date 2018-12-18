@@ -5,7 +5,7 @@ function init(){
     var url = new URL(window.location.href);
     var objectName = url.searchParams.get("objectName");
     BaseAPI.getObjDef(objectName, function(r){
-
+        
         document.title = r.label + "_オブジェクト";
 
         var fields = r.fields;

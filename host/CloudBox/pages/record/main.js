@@ -179,6 +179,9 @@ var vue = new Vue({
                 console.log(r);
                 appData.errMsg = JSON.stringify(r) ;
             });
+        },
+        onRefClick : function(){
+            window.open(SalesforceAPI.LoginInfo.domain + appData.recordData.Id);
         }
     }
 });
