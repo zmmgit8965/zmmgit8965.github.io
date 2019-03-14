@@ -21,7 +21,7 @@ var v = new Vue({
 
     }
 });
-
+//
 var itemArr = [
     {id:"0", txt:"申請"},
 {id:"1", txt:"レコードタイプ"},
