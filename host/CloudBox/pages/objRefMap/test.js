@@ -14,7 +14,7 @@ Circle.prototype.getPointByAngle = function(angle){
 }
 
 var appData = { };
-var v = new Vue({
+var v = new Vue({ 
     el: '#app',
     data: { appData: appData },
     methods: {
