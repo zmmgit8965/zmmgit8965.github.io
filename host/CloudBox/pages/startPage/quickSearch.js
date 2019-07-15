@@ -139,12 +139,12 @@ Vue.component('quick-search', {
                 }
                 
                 SalesforceAPI.requestToolingApi("SELECT Id,DeveloperName FROM CustomObject WHERE DeveloperName='" + searchName + "'" ,function(doc,text){
-                    var s = $(doc).find("sf\\:Id").html();
-                    window.open(SalesforceAPI.LoginInfo.domain + s);
+                    var s = doc.records[0].Id;
+                    window.open(SalesforceAPI.LoginInfo.domain + s+ "?setupid=CustomObjects");
                 });
             }else{
                 window.open(SalesforceAPI.LoginInfo.domain + "p/setup/layout/LayoutFieldList?type=" + obj.name);
-
+    
             }
         }
     }

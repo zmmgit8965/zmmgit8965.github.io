@@ -50,19 +50,20 @@ var v = new Vue({
             $("#pickModel").show();
         },
         onRefClick: function (obj) {
-            if (obj.custom) {
-                var searchName = obj.name.replace("__c", "");
-                if (searchName.indexOf("__")) {
-                    searchName = searchName.substring(searchName.indexOf("__") + 2, searchName.length);
+            if(obj.custom){
+                var searchName = obj.name.replace("__c","");
+                if(searchName.indexOf("__") != -1){
+                    searchName = searchName.substring(searchName.indexOf("__") + 2 , searchName.length);
                 }
-
-                SalesforceAPI.requestToolingApi("SELECT Id,DeveloperName FROM CustomObject WHERE DeveloperName='" + searchName + "'", function (d) {
-                    window.open(SalesforceAPI.LoginInfo.domain + d.records[0].Id);
+                
+                SalesforceAPI.requestToolingApi("SELECT Id,DeveloperName FROM CustomObject WHERE DeveloperName='" + searchName + "'" ,function(doc,text){
+                    var s = doc.records[0].Id;
+                    window.open(SalesforceAPI.LoginInfo.domain + s+ "?setupid=CustomObjects");
                 });
-            } else {
+            }else{
                 window.open(SalesforceAPI.LoginInfo.domain + "p/setup/layout/LayoutFieldList?type=" + obj.name);
+    
             }
-
         },
         onFieldRefClick: function (obj, field) {
 
